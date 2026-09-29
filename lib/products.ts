@@ -15,12 +15,12 @@ export type Product = {
 }
 
 export const CATEGORIES: { value: Category | 'all'; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'pendants', label: 'Pendants' },
-  { value: 'rings', label: 'Rings' },
-  { value: 'earrings', label: 'Earrings' },
-  { value: 'bracelets', label: 'Bracelets' },
-  { value: 'accessories', label: 'Accessories' },
+  { value: 'all', label: 'Tất cả' },
+  { value: 'rings', label: 'Nhẫn bạc' },
+  { value: 'pendants', label: 'Mặt dây chuyền' },
+  { value: 'bracelets', label: 'Vòng & Lắc tay' },
+  { value: 'earrings', label: 'Khuyên tai' },
+  { value: 'accessories', label: 'Phụ kiện' },
 ]
 
 const RING_SIZES = ['8', '9', '10', '11', '12', '13']

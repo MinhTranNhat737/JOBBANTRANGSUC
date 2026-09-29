@@ -1,26 +1,14 @@
-const MESSAGES = [
-  'Bảo hành trọn đời cho mọi sản phẩm bạc',
-  'Miễn phí vận chuyển đơn từ 2.000.000₫',
-  'Chế tác thủ công bởi nghệ nhân Việt',
-  'Hotline 1900 1234',
-]
-
 export function AnnouncementBar() {
-  const items = [...MESSAGES, ...MESSAGES]
   return (
-    <div className="overflow-hidden bg-lacquer text-lacquer-foreground">
-      <div className="marquee-track flex w-max items-center py-2" aria-label={MESSAGES.join(' · ')}>
-        {items.map((msg, i) => (
-          <span
-            key={i}
-            aria-hidden="true"
-            className="flex items-center gap-6 px-6 text-[11px] font-medium uppercase tracking-[0.2em]"
-          >
-            {msg}
-            <span className="size-1.5 rotate-45 bg-accent" />
-          </span>
-        ))}
+    <div className="border-b border-white/10 bg-[#0d0d0f] py-2 text-xs text-zinc-300">
+      <div className="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-4 text-center font-medium tracking-wide">
+        <span>Bảo hành trọn đời</span>
+        <span className="text-zinc-600">·</span>
+        <span>Miễn phí vận chuyển từ 2.000.000₫</span>
+        <span className="text-zinc-600">·</span>
+        <span>Bạc 925 chuẩn kiểm định</span>
       </div>
     </div>
   )
 }
+

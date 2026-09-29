@@ -22,8 +22,10 @@ export function ProductPurchase({ product }: { product: Product }) {
     <div className="mt-8 space-y-6">
       {product.sizes && (
         <fieldset>
-          <legend className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Size</legend>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <legend className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
+            Kích thước (Size)
+          </legend>
+          <div className="mt-3 flex flex-wrap gap-2.5">
             {product.sizes.map((s) => (
               <button
                 key={s}
@@ -31,8 +33,10 @@ export function ProductPurchase({ product }: { product: Product }) {
                 aria-pressed={size === s}
                 onClick={() => setSize(s)}
                 className={cn(
-                  'min-w-12 border px-3 py-2 text-xs transition-colors',
-                  size === s ? 'border-foreground bg-foreground text-background' : 'border-border hover:border-foreground',
+                  'min-w-12 rounded-sm border px-4 py-2.5 text-sm font-semibold transition-colors',
+                  size === s
+                    ? 'border-white bg-white text-black'
+                    : 'border-zinc-700 bg-zinc-900/60 text-zinc-300 hover:border-white hover:text-white',
                 )}
               >
                 {s}
@@ -42,32 +46,36 @@ export function ProductPurchase({ product }: { product: Product }) {
         </fieldset>
       )}
 
-      <p className="text-xs text-muted-foreground" aria-live="polite">
-        {soldOut ? 'Sold out' : product.stock <= 5 ? `Only ${product.stock} left in stock` : 'In stock, ready to ship'}
+      <p className="text-sm font-medium text-zinc-300" aria-live="polite">
+        {soldOut
+          ? 'Tạm hết hàng'
+          : product.stock <= 5
+            ? `Chỉ còn ${product.stock} tác phẩm trong kho`
+            : '✓ Còn hàng, sẵn sàng đóng gói giao ngay'}
       </p>
 
       <div className="flex gap-3">
-        <div className="flex items-center border border-border">
+        <div className="flex items-center rounded-sm border border-zinc-700 bg-zinc-900/80">
           <button
             type="button"
-            className="p-3 disabled:opacity-30"
-            aria-label="Decrease quantity"
+            className="p-3.5 text-zinc-300 hover:text-white disabled:opacity-30"
+            aria-label="Giảm số lượng"
             disabled={qty <= 1 || soldOut}
             onClick={() => setQty((q) => Math.max(1, q - 1))}
           >
-            <Minus className="size-3.5" />
+            <Minus className="size-4" />
           </button>
-          <span className="w-8 text-center text-sm tabular-nums" aria-label="Quantity">
+          <span className="w-10 text-center text-sm font-semibold tabular-nums text-white" aria-label="Số lượng">
             {qty}
           </span>
           <button
             type="button"
-            className="p-3 disabled:opacity-30"
-            aria-label="Increase quantity"
+            className="p-3.5 text-zinc-300 hover:text-white disabled:opacity-30"
+            aria-label="Tăng số lượng"
             disabled={qty >= maxQty || soldOut}
             onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
           >
-            <Plus className="size-3.5" />
+            <Plus className="size-4" />
           </button>
         </div>
         <button
@@ -76,18 +84,18 @@ export function ProductPurchase({ product }: { product: Product }) {
           onClick={() =>
             addToCart({ slug: product.slug, name: product.name, price: product.price, image: product.image, size }, qty)
           }
-          className="flex-1 bg-foreground py-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex-1 rounded-sm bg-white py-4 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40 md:text-sm"
         >
-          {soldOut ? 'Sold out' : 'Add to cart'}
+          {soldOut ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
         </button>
         <button
           type="button"
           onClick={() => toggleWishlist(product.slug)}
           aria-pressed={mounted && wished}
-          aria-label="Toggle wishlist"
-          className="border border-border px-4 transition-colors hover:border-foreground"
+          aria-label="Yêu thích"
+          className="rounded-sm border border-zinc-700 bg-zinc-900/80 px-4 transition-colors hover:border-white"
         >
-          <Heart className={cn('size-4', mounted && wished && 'fill-accent text-accent')} />
+          <Heart className={cn('size-5', mounted && wished ? 'fill-white text-white' : 'text-zinc-300')} />
         </button>
       </div>
     </div>

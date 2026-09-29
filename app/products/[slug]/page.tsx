@@ -60,18 +60,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
-      <nav aria-label="Breadcrumb" className="mb-8 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-        <ol className="flex gap-2">
-          <li><Link href="/" className="hover:text-foreground">Home</Link></li>
-          <li aria-hidden>/</li>
-          <li><Link href={`/collections?c=${product.category}`} className="capitalize hover:text-foreground">{product.category}</Link></li>
-          <li aria-hidden>/</li>
-          <li aria-current="page" className="text-foreground">{product.name}</li>
+      <nav aria-label="Breadcrumb" className="mb-8 text-xs font-medium uppercase tracking-wider text-zinc-400">
+        <ol className="flex items-center gap-2">
+          <li><Link href="/" className="hover:text-white">Trang chủ</Link></li>
+          <li aria-hidden className="text-zinc-600">/</li>
+          <li><Link href={`/collections?c=${product.category}`} className="capitalize hover:text-white">{product.category}</Link></li>
+          <li aria-hidden className="text-zinc-600">/</li>
+          <li aria-current="page" className="text-white">{product.name}</li>
         </ol>
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
-        <div className="product-stage relative aspect-square overflow-hidden">
+        <div className="product-stage relative aspect-square overflow-hidden rounded-sm border border-white/10">
           <Image
             src={product.image || '/placeholder.svg'}
             alt={product.name}
@@ -84,29 +84,29 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
         <div className="lg:sticky lg:top-28 lg:self-start">
           {product.badge && (
-            <p className="text-[11px] uppercase tracking-[0.3em] text-accent">{product.badge}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">{product.badge}</p>
           )}
-          <h1 className="mt-2 font-display text-3xl leading-tight tracking-wide md:text-5xl">{product.name}</h1>
-          <p className="mt-4 text-lg tabular-nums">
+          <h1 className="mt-2 font-display text-3xl font-medium leading-tight tracking-wide text-white md:text-4xl">{product.name}</h1>
+          <p className="mt-4 text-2xl font-bold tabular-nums text-white">
             {formatPrice(product.price)}
             {product.compareAtPrice && (
-              <s className="ml-3 text-sm text-muted-foreground">{formatPrice(product.compareAtPrice)}</s>
+              <s className="ml-3 text-base font-normal text-zinc-500">{formatPrice(product.compareAtPrice)}</s>
             )}
           </p>
-          <p className="mt-6 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+          <p className="mt-6 text-base leading-relaxed text-zinc-300">{product.description}</p>
           <ProductPurchase product={product} />
-          <dl className="mt-10 divide-y divide-border border-y border-border text-sm">
+          <dl className="mt-10 divide-y divide-zinc-800 border-y border-zinc-800 text-sm">
             <div className="flex justify-between py-4">
-              <dt className="text-muted-foreground">Material</dt>
-              <dd>{product.material}</dd>
+              <dt className="text-zinc-400">Chất liệu chế tác</dt>
+              <dd className="font-medium text-white">{product.material}</dd>
             </div>
             <div className="flex justify-between py-4">
-              <dt className="text-muted-foreground">Warranty</dt>
-              <dd>Lifetime cleaning &amp; polishing</dd>
+              <dt className="text-zinc-400">Chính sách bảo hành</dt>
+              <dd className="font-medium text-white">Làm sáng &amp; đánh bóng trọn đời</dd>
             </div>
             <div className="flex justify-between py-4">
-              <dt className="text-muted-foreground">Shipping</dt>
-              <dd>2–4 business days</dd>
+              <dt className="text-zinc-400">Thời gian giao nhận</dt>
+              <dd className="font-medium text-white">2–4 ngày, kiểm tra trước khi nhận</dd>
             </div>
           </dl>
         </div>
@@ -115,9 +115,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {related.length > 0 && (
         <section className="mt-24">
           <Reveal>
-            <h2 className="mb-8 font-display text-2xl tracking-wider md:text-3xl">You May Also Like</h2>
+            <h2 className="mb-8 font-display text-2xl font-medium tracking-wider text-white md:text-3xl">Gợi ý dành cho bạn</h2>
           </Reveal>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-4 md:gap-x-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {related.map((p, i) => (
               <Reveal key={p.slug} delay={i * 0.08}>
                 <ProductCard product={p} />

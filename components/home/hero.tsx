@@ -2,151 +2,50 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
-
-const EASE = [0.22, 1, 0.36, 1] as const
-const TITLE = ['Rèn', 'từ', 'huyền', 'thoại,', 'khoác', 'lên', 'bản', 'lĩnh']
-
-const EMBERS = Array.from({ length: 18 }, (_, i) => ({
-  left: `${(i * 53) % 100}%`,
-  size: 2 + (i % 3),
-  dur: `${8 + (i % 5) * 1.6}s`,
-  delay: `${(i * 0.7) % 9}s`,
-  drift: `${((i % 7) - 3) * 18}px`,
-}))
 
 export function Hero() {
-  const ref = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
-  const drumY = useTransform(scrollYProgress, [0, 1], ['0%', '-30%'])
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
-
   return (
-    <section ref={ref} className="relative h-[78svh] min-h-[520px] overflow-hidden md:h-[92svh]">
-      <motion.div
-        className="absolute inset-0"
-        style={{ y }}
-        initial={{ scale: 1.18, clipPath: 'inset(12% 12% 12% 12%)' }}
-        animate={{ scale: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
-        transition={{ duration: 1.8, ease: EASE }}
-      >
+    <section className="relative flex min-h-[620px] items-center justify-center overflow-hidden border-b border-white/10 md:min-h-[780px]">
+      {/* Background with black & white monochrome tone */}
+      <div className="absolute inset-0">
         <Image
           src="/images/hero.png"
-          alt="Tranh vẽ tay chim phượng và rồng giữa lửa hổ phách"
+          alt="Hình ảnh nghệ thuật trang sức bạc chế tác"
           fill
           priority
           sizes="100vw"
-          className="object-cover"
+          className="object-cover brightness-50 contrast-125 grayscale"
         />
-      </motion.div>
-
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/10" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,var(--background)_95%)]" />
-
-      <motion.div
-        aria-hidden="true"
-        style={{ y: drumY }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.32, scale: 1 }}
-        transition={{ delay: 0.6, duration: 2, ease: EASE }}
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[130vmin] -translate-x-1/2 -translate-y-1/2 mix-blend-screen md:size-[110vmin]"
-      >
-        <Image src="/images/trong-dong.png" alt="" fill sizes="110vmin" className="spin-slow object-contain" />
-      </motion.div>
-
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-full">
-        {EMBERS.map((e, i) => (
-          <span
-            key={i}
-            className="ember absolute bottom-0 rounded-full bg-accent shadow-[0_0_8px_2px_var(--accent)]"
-            style={
-              {
-                left: e.left,
-                width: e.size,
-                height: e.size,
-                '--dur': e.dur,
-                '--delay': e.delay,
-                '--drift': e.drift,
-              } as React.CSSProperties
-            }
-          />
-        ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/70 to-[#0c0c0e]/50" />
       </div>
 
-      {/* Contrast spotlight to make silver metal typography pop */}
+      {/* Static dignified Trống Đồng watermark - no rotation */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-8 h-[520px] bg-[radial-gradient(ellipse_70%_55%_at_50%_65%,rgba(15,15,15,0.8)_0%,transparent_100%)]"
-      />
-
-      <motion.div
-        style={{ opacity }}
-        className="relative z-10 mx-auto flex h-full max-w-screen-2xl flex-col items-center justify-end px-4 pb-20 text-center md:pb-28"
+        className="pointer-events-none absolute left-1/2 top-1/2 size-[650px] -translate-x-1/2 -translate-y-1/2 opacity-15 mix-blend-screen md:size-[850px]"
       >
-        <motion.div
-          initial={{ opacity: 0, letterSpacing: '0.8em' }}
-          animate={{ opacity: 1, letterSpacing: '0.4em' }}
-          transition={{ delay: 0.5, duration: 1.4, ease: EASE }}
-          className="flex items-center gap-3 text-[11px] font-semibold uppercase text-accent md:text-xs"
-        >
-          <span className="h-px w-8 bg-accent/60" />
-          Bộ sưu tập Chu Tước
-          <span className="h-px w-8 bg-accent/60" />
-        </motion.div>
+        <Image src="/images/trong-dong.png" alt="" fill sizes="850px" className="object-contain" />
+      </div>
 
-        <h1 className="font-calligraphy mt-6 flex max-w-5xl flex-wrap justify-center gap-x-[0.25em] text-balance text-5xl font-semibold leading-[1.12] tracking-wide sm:text-6xl md:text-8xl lg:text-[5.5rem]">
-          {TITLE.map((word, i) => (
-            <span key={i} className="overflow-hidden px-1.5 pb-4 pt-1.5">
-              <motion.span
-                className="text-silver-metal inline-block"
-                initial={{ y: '110%', opacity: 0, filter: 'blur(8px)' }}
-                animate={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
-                transition={{ delay: 0.7 + i * 0.08, duration: 1, ease: EASE }}
-              >
-                {word}
-              </motion.span>
-            </span>
-          ))}
+      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center md:py-28">
+        <h1 className="font-calligraphy text-balance text-4xl font-medium leading-[1.2] text-white sm:text-5xl md:text-6xl">
+          Rèn từ huyền thoại
         </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.9 }}
-          className="mt-5 max-w-lg text-pretty text-sm font-medium leading-relaxed text-foreground/85 md:text-base"
-        >
-          Trang sức bạc chế tác thủ công, lấy cảm hứng từ Tứ Linh và hoa văn trống đồng Đông Sơn.
-        </motion.p>
+        <p className="mt-4 text-balance text-base font-normal text-zinc-300 md:text-lg">
+          Trang sức bạc 925 chế tác thủ công tinh xảo.
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.7, duration: 0.8 }}
-        >
+        <div className="mt-8">
           <Link
             href="/collections"
-            className="group relative mt-8 inline-flex overflow-hidden border border-accent/70 px-9 py-3.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-foreground"
+            className="inline-flex items-center justify-center bg-white px-9 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-200 md:px-10 md:py-4 md:text-sm"
           >
-            <span className="absolute inset-0 -translate-x-full bg-accent transition-transform duration-500 ease-out group-hover:translate-x-0" />
-            <span className="relative transition-colors duration-500 group-hover:text-accent-foreground">
-              Khám phá bộ sưu tập
-            </span>
+            Khám phá bộ sưu tập
           </Link>
-        </motion.div>
-
-        <motion.div
-          aria-hidden="true"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 8, 0] }}
-          transition={{ opacity: { delay: 2.2 }, y: { repeat: Infinity, duration: 2.2, ease: 'easeInOut' } }}
-          className="mt-10 text-accent/70"
-        >
-          <ChevronDown className="size-5" />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   )
 }
+

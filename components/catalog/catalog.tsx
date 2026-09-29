@@ -33,8 +33,8 @@ export function Catalog({ products }: { products: Product[] }) {
 
   return (
     <>
-      <div className="sticky top-[65px] z-30 -mx-4 mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-border bg-background/90 px-4 py-3 backdrop-blur md:top-[73px] md:-mx-8 md:px-8">
-        <div role="tablist" aria-label="Filter by category" className="flex gap-1 overflow-x-auto">
+      <div className="sticky top-[57px] z-30 -mx-4 mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-white/10 bg-[#0c0c0e]/95 px-4 py-3 backdrop-blur md:top-[65px] md:-mx-8 md:px-8">
+        <div role="tablist" aria-label="Filter by category" className="flex gap-2 overflow-x-auto">
           {CATEGORIES.map((c) => (
             <button
               key={c.value}
@@ -42,51 +42,39 @@ export function Catalog({ products }: { products: Product[] }) {
               aria-selected={category === c.value}
               onClick={() => setParam('c', c.value, 'all')}
               className={cn(
-                'relative whitespace-nowrap px-3 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground',
-                category === c.value && 'text-foreground',
+                'relative whitespace-nowrap rounded-sm px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] transition-colors',
+                category === c.value
+                  ? 'bg-white text-black'
+                  : 'text-zinc-400 hover:text-white',
               )}
             >
               {c.label}
-              {category === c.value && (
-                <motion.span layoutId="cat-underline" className="absolute inset-x-3 -bottom-0.5 h-px bg-accent" />
-              )}
             </button>
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground tabular-nums">{visible.length} items</span>
+          <span className="text-xs font-medium text-zinc-400 tabular-nums">{visible.length} sản phẩm</span>
           <label htmlFor="sort" className="sr-only">
-            Sort by
+            Sắp xếp theo
           </label>
           <select
             id="sort"
             value={sort}
             onChange={(e) => setParam('sort', e.target.value, 'featured')}
-            className="border border-border bg-background px-3 py-2 text-[11px] uppercase tracking-[0.15em]"
+            className="rounded-sm border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-white"
           >
-            <option value="featured">Featured</option>
-            <option value="price-asc">Price: Low to high</option>
-            <option value="price-desc">Price: High to low</option>
+            <option value="featured">Nổi bật</option>
+            <option value="price-asc">Giá: Thấp đến cao</option>
+            <option value="price-desc">Giá: Cao đến thấp</option>
           </select>
         </div>
       </div>
 
-      <motion.div layout className="grid grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-3 md:gap-x-4 xl:grid-cols-4">
-        <AnimatePresence mode="popLayout">
-          {visible.map((p, i) => (
-            <motion.div
-              key={p.slug}
-              layout
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.4, delay: Math.min(i, 8) * 0.03 }}
-            >
-              <ProductCard product={p} priority={i < 4} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+        {visible.map((p, i) => (
+          <ProductCard key={p.slug} product={p} priority={i < 4} />
+        ))}
+      </div>
     </>
   )
 }

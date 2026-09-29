@@ -1,32 +1,22 @@
-const WORDS = ['Long', 'Lân', 'Quy', 'Phụng', 'Chu Tước', 'Sen vàng', 'Trống đồng']
+const MOTIFS = ['Long', 'Lân', 'Quy', 'Phụng', 'Bạch Liên', 'Trống Đồng']
 
 export function TuLinhBand() {
-  const items = [...WORDS, ...WORDS]
   return (
     <section
-      aria-label="Tứ Linh: Long, Lân, Quy, Phụng"
-      className="relative overflow-hidden border-y border-border bg-lacquer/25 py-6"
+      aria-label="Biểu tượng truyền thống"
+      className="border-y border-white/10 bg-[#101013] py-7"
     >
-      <div
-        aria-hidden="true"
-        className="pattern-long-phuong pointer-events-none absolute inset-0 opacity-10 [animation-direction:reverse]"
-      />
-      <div className="marquee-track relative flex w-max items-center" aria-hidden="true">
-        {items.map((w, i) => (
-          <span key={i} className="flex items-center gap-10 px-10">
-            <span
-              className={
-                i % 2 === 0
-                  ? 'font-calligraphy text-3xl font-normal tracking-wider text-foreground md:text-5xl'
-                  : 'font-calligraphy text-3xl font-light tracking-wider text-transparent [-webkit-text-stroke:1px_var(--accent)] md:text-5xl'
-              }
-            >
-              {w}
-            </span>
-            <span className="size-2 rotate-45 bg-accent" />
+      <div className="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-around gap-6 px-4 text-center">
+        {MOTIFS.map((name) => (
+          <span
+            key={name}
+            className="font-calligraphy text-xl font-normal tracking-widest text-zinc-300 transition-colors hover:text-white sm:text-2xl md:text-3xl"
+          >
+            {name}
           </span>
         ))}
       </div>
     </section>
   )
 }
+
