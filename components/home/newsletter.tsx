@@ -20,7 +20,7 @@ export function Newsletter() {
         <Image src="/images/trong-dong.png" alt="" fill sizes="720px" className="spin-slow object-contain" />
       </div>
       <div className="relative mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center md:py-32">
-        <h2 className="font-calligraphy text-balance text-3xl font-normal tracking-wide md:text-5xl">Đăng ký nhận bản tin</h2>
+        <h2 className="font-calligraphy text-silver-metal text-balance text-3xl font-medium tracking-wide md:text-5xl">Đăng ký nhận bản tin</h2>
         <p className="mt-4 text-sm text-muted-foreground">
           Là người đầu tiên biết về bộ sưu tập mới và ưu đãi dành riêng.
         </p>

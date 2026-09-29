@@ -91,11 +91,11 @@ export function Hero() {
           <span className="h-px w-8 bg-accent/60" />
         </motion.div>
 
-        <h1 className="font-calligraphy mt-5 flex max-w-4xl flex-wrap justify-center gap-x-[0.25em] text-balance text-4xl font-normal leading-[1.18] tracking-wide md:text-7xl">
+        <h1 className="font-calligraphy mt-5 flex max-w-4xl flex-wrap justify-center gap-x-[0.28em] text-balance text-4xl font-medium leading-[1.2] tracking-wide md:text-7xl">
           {TITLE.map((word, i) => (
-            <span key={i} className="overflow-hidden pb-2">
+            <span key={i} className="overflow-hidden px-1 pb-3 pt-1">
               <motion.span
-                className="inline-block"
+                className="text-silver-metal inline-block"
                 initial={{ y: '110%', opacity: 0, filter: 'blur(8px)' }}
                 animate={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
                 transition={{ delay: 0.7 + i * 0.08, duration: 1, ease: EASE }}
