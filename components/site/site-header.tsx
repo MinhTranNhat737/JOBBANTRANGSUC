@@ -56,7 +56,7 @@ export function SiteHeader() {
                 href={item.href}
                 onMouseEnter={() => setHovered(item.label)}
                 className={cn(
-                  'relative whitespace-nowrap py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground',
+                  'relative whitespace-nowrap py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/80 transition-colors hover:text-foreground',
                   active && 'text-foreground',
                 )}
               >
@@ -160,7 +160,7 @@ export function SiteHeader() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.05 * i }}
                 >
-                  <Link href={item.href} className="block py-3 text-sm uppercase tracking-[0.2em]">
+                  <Link href={item.href} className="block py-3 text-sm font-bold uppercase tracking-[0.2em] text-foreground/90">
                     {item.label}
                   </Link>
                 </motion.li>
