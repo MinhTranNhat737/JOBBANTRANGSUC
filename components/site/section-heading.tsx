@@ -13,7 +13,7 @@ export function SectionHeading({ eyebrow, title }: { eyebrow: string; title: str
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.9, ease: EASE }}
-        className="font-calligraphy text-silver-metal mt-3 text-balance text-3xl font-medium tracking-wide md:text-5xl"
+        className="font-calligraphy text-silver-metal mt-3 text-balance text-3xl font-semibold tracking-wide md:text-5xl lg:text-6xl"
       >
         {title}
       </motion.h2>

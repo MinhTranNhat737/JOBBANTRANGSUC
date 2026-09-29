@@ -76,6 +76,12 @@ export function Hero() {
         ))}
       </div>
 
+      {/* Contrast spotlight to make silver metal typography pop */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-8 h-[520px] bg-[radial-gradient(ellipse_70%_55%_at_50%_65%,rgba(15,15,15,0.8)_0%,transparent_100%)]"
+      />
+
       <motion.div
         style={{ opacity }}
         className="relative z-10 mx-auto flex h-full max-w-screen-2xl flex-col items-center justify-end px-4 pb-20 text-center md:pb-28"
@@ -84,16 +90,16 @@ export function Hero() {
           initial={{ opacity: 0, letterSpacing: '0.8em' }}
           animate={{ opacity: 1, letterSpacing: '0.4em' }}
           transition={{ delay: 0.5, duration: 1.4, ease: EASE }}
-          className="flex items-center gap-3 text-[11px] uppercase text-accent"
+          className="flex items-center gap-3 text-[11px] font-semibold uppercase text-accent md:text-xs"
         >
           <span className="h-px w-8 bg-accent/60" />
           Bộ sưu tập Chu Tước
           <span className="h-px w-8 bg-accent/60" />
         </motion.div>
 
-        <h1 className="font-calligraphy mt-5 flex max-w-4xl flex-wrap justify-center gap-x-[0.28em] text-balance text-4xl font-medium leading-[1.2] tracking-wide md:text-7xl">
+        <h1 className="font-calligraphy mt-6 flex max-w-5xl flex-wrap justify-center gap-x-[0.25em] text-balance text-5xl font-semibold leading-[1.12] tracking-wide sm:text-6xl md:text-8xl lg:text-[5.5rem]">
           {TITLE.map((word, i) => (
-            <span key={i} className="overflow-hidden px-1 pb-3 pt-1">
+            <span key={i} className="overflow-hidden px-1.5 pb-4 pt-1.5">
               <motion.span
                 className="text-silver-metal inline-block"
                 initial={{ y: '110%', opacity: 0, filter: 'blur(8px)' }}
@@ -110,7 +116,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5, duration: 0.9 }}
-          className="mt-4 max-w-md text-pretty text-sm leading-relaxed text-foreground/70"
+          className="mt-5 max-w-lg text-pretty text-sm font-medium leading-relaxed text-foreground/85 md:text-base"
         >
           Trang sức bạc chế tác thủ công, lấy cảm hứng từ Tứ Linh và hoa văn trống đồng Đông Sơn.
         </motion.p>
