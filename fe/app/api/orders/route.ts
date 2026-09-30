@@ -21,6 +21,31 @@ export async function POST(req: Request) {
     // 1. Lưu đơn hàng vào file dữ liệu server vĩnh viễn (data/orders.json)
     const saved = saveServerOrder(order)
 
+    // 1b. Lưu vào Backend PostgreSQL Database
+    try {
+      fetch('http://localhost:3001/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: saved.id,
+          customer_id: saved.customerId ? parseInt(saved.customerId) : null,
+          payment_method: saved.paymentGateway || saved.paymentMethod || 'cod',
+          shipping_name: saved.customerName,
+          shipping_phone: saved.customerPhone,
+          shipping_addr: saved.customerAddress,
+          note: saved.notes,
+          items: saved.items.map((it: any) => ({
+            product_id: it.id || null,
+            name: it.name,
+            unit_price: it.price,
+            quantity: it.quantity,
+          })),
+        }),
+      }).catch((err) => console.warn('Sync to PostgreSQL DB failed:', err))
+    } catch {
+      // ignore
+    }
+
     // 2. Bắn thông báo Telegram tức thì cho Admin
     const telegramRes = await sendOrderNotificationToTelegram(saved, paymentNote || saved.paymentMethod)
 

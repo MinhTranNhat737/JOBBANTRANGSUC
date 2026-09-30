@@ -2,9 +2,9 @@
   "telegramBotToken": "",
   "telegramChatId": "",
   "resendApiKey": "",
-  "adminEmail": "admin@legend.vn",
-  "sepayAccountNumber": "090123456789",
+  "adminEmail": "admin@thucluxury.vn",
+  "sepayAccountNumber": "0363132364",
   "sepayBankCode": "MBBank",
-  "sepayAccountName": "CONG TY TNHH TRANG SUC LEGEND",
+  "sepayAccountName": "TRAN NHAT MINH",
   "momoPartnerCode": "MOMO"
 }

@@ -8,9 +8,10 @@ export const revalidate = 60
 export const metadata: Metadata = {
   title: 'Discover Craftsmanship — All Products',
   description:
-    'Browse handcrafted sterling silver rings, pendants, earrings, bracelets and accessories by LEGEND.',
+    'Khám phá bộ sưu tập nhẫn, mặt dây chuyền, khuyên tai, vòng tay và phụ kiện xa xỉ chế tác thủ công tinh xảo bởi THUC LUXURY.',
   alternates: { canonical: '/collections' },
 }
+
 
 export default async function CollectionsPage() {
   const products = await getProducts()

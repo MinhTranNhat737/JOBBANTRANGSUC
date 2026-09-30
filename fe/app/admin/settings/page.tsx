@@ -399,18 +399,18 @@ export default function SettingsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--admin-text-secondary)' }}>Ngân hàng:</span>
-              <strong style={{ color: '#ffffff' }}>VietinBank / MBBank</strong>
+              <strong style={{ color: '#ffffff' }}>MBBank (Ngân hàng Quân Đội)</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--admin-text-secondary)' }}>Số tài khoản:</span>
               <strong style={{ fontFamily: 'monospace', color: '#ffffff' }}>
-                {config?.sepay.accountNumber || '102873892837'}
+                {config?.sepay.accountNumber || '0363132364'}
               </strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--admin-text-secondary)' }}>Chủ TK:</span>
               <span style={{ color: '#ffffff', textTransform: 'uppercase' }}>
-                {config?.sepay.accountName || 'CONG TY CP TRANG SUC LEGEND'}
+                {config?.sepay.accountName || 'TRAN NHAT MINH'}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--admin-border)' }}>

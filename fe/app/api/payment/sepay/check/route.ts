@@ -17,8 +17,33 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Missing orderId parameter' }, { status: 400 })
   }
 
-  const isPaid = isOrderPaidOnServer(orderId)
-  const tx = getPaidTransaction(orderId)
+  let isPaid = isOrderPaidOnServer(orderId)
+  let tx = getPaidTransaction(orderId)
+
+  // Nếu chưa paid trong memory registry, kiểm tra từ Backend Express / PostgreSQL & SePay API
+  if (!isPaid) {
+    try {
+      const backendUrl = process.env.API_URL || 'http://localhost:3001/api'
+      const cleanId = orderId.replace(/^#/, '')
+      const beRes = await fetch(`${backendUrl}/payment/check/${encodeURIComponent(cleanId)}`, {
+        cache: 'no-store',
+      })
+      if (beRes.ok) {
+        const beData = await beRes.json()
+        if (beData.isPaid) {
+          isPaid = true
+          tx = registerPaidOrder({
+            orderId,
+            gateway: 'sepay',
+            amount: parseFloat(beData.totalAmount || 0),
+            reference: `SEP-VERIFIED-${Date.now()}`,
+          })
+        }
+      }
+    } catch {
+      // Ignore background network check error
+    }
+  }
 
   return NextResponse.json({
     orderId,

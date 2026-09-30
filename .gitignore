@@ -11,3 +11,6 @@ fe/node_modules/
 fe/.next/
 fe/.env*.local
 fe/tsconfig.tsbuildinfo
+
+be/node_modules/
+be/.env

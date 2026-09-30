@@ -21,6 +21,8 @@ import { useCustomer } from '@/lib/customer-store'
 import { useShop, selectCartTotal } from '@/lib/store'
 import { useOrderStore } from '@/lib/order-store'
 import { formatPrice } from '@/lib/products'
+import { PAYMENT_CONFIG } from '@/lib/payment-config'
+import { getSepayTransferDescription } from '@/lib/sepay'
 import type { Order } from '@/lib/admin-data'
 
 type PaymentMethodType = 'SEPAY' | 'MOMO' | 'COD'
@@ -333,11 +335,12 @@ export default function CheckoutPage() {
   }
 
   // SePay QR parameters
-  const sepayDescription = currentOrder ? `LEGEND${currentOrder.id.replace(/\D/g, '')}` : 'LEGEND1090'
+  const sepayConfig = PAYMENT_CONFIG.sepay
+  const sepayDescription = currentOrder ? getSepayTransferDescription(currentOrder.id) : 'THUC1089'
   const sepayQrUrl = currentOrder
-    ? `https://qr.sepay.vn/img?acc=102873892837&bank=VietinBank&amount=${currentOrder.total}&des=${encodeURIComponent(
-        sepayDescription,
-      )}&template=compact`
+    ? `https://qr.sepay.vn/img?acc=${encodeURIComponent(sepayConfig.accountNumber)}&bank=${encodeURIComponent(
+        sepayConfig.bankCode,
+      )}&amount=${currentOrder.total}&des=${encodeURIComponent(sepayDescription)}&template=${sepayConfig.template || 'compact2'}`
     : ''
 
   return (
@@ -684,22 +687,22 @@ export default function CheckoutPage() {
             <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 text-left space-y-2.5 text-xs">
               <div className="flex justify-between items-center">
                 <span className="text-[var(--text-muted)]">Ngân hàng:</span>
-                <span className="font-bold text-white">VietinBank (ICB)</span>
+                <span className="font-bold text-white">{sepayConfig.bankCode}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--text-muted)]">Số tài khoản:</span>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard('102873892837', 'acc')}
+                  onClick={() => copyToClipboard(sepayConfig.accountNumber, 'acc')}
                   className="font-mono font-bold text-white flex items-center gap-1.5 hover:text-zinc-300"
                 >
-                  <span>102873892837</span>
+                  <span>{sepayConfig.accountNumber}</span>
                   {isCopiedAcc ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
                 </button>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--text-muted)]">Chủ tài khoản:</span>
-                <span className="font-bold text-white uppercase">CONG TY CP TRANG SUC LEGEND</span>
+                <span className="font-bold text-white uppercase">{sepayConfig.accountName}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--text-muted)]">Số tiền:</span>

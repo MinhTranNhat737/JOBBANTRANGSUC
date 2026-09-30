@@ -1,5 +1,114 @@
 [
   {
+    "id": "#2004",
+    "customerName": "Trần Nhật Minh",
+    "customerEmail": "trannhatminhforwork@gmail.com",
+    "customerPhone": "0363132364",
+    "customerAddress": "HÀ NỘI",
+    "items": [
+      {
+        "slug": "de-lot-ly-bang-go-voi-logo-chrome-hearts-sp0001",
+        "name": "Đế lót ly bằng gỗ với logo Chrome Hearts",
+        "image": "/images/SP0001-1.jpg",
+        "quantity": 1,
+        "price": 1570000
+      },
+      {
+        "slug": "mat-chrome-hearts-22k-baby-fat-cross-dinh-kim-cuong-sp0006",
+        "name": "Mặt Chrome Hearts 22k baby fat cross đính kim cương",
+        "image": "/images/SP0006-1.jpg",
+        "quantity": 1,
+        "price": 3420000
+      }
+    ],
+    "total": 4990000,
+    "shippingFee": 0,
+    "status": "confirmed",
+    "createdAt": "2026-09-30T15:07:49.133Z",
+    "paymentMethod": "Chuyển khoản SePay (VietQR)",
+    "paymentGateway": "sepay",
+    "paymentStatus": "paid",
+    "transactionId": "SIM-SEP-1790780874214",
+    "paidAt": "2026-09-30T15:07:54.214Z",
+    "customerId": "3",
+    "timeline": [
+      {
+        "date": "2026-09-30T15:07:49.133Z",
+        "status": "Đặt hàng thành công",
+        "note": "Đơn hàng mới đã được gửi về hệ thống cửa hàng để xử lý"
+      }
+    ]
+  },
+  {
+    "id": "#2003",
+    "customerName": "Trần Nhật Minh",
+    "customerEmail": "trannhatminhforwork@gmail.com",
+    "customerPhone": "0363132364",
+    "customerAddress": "HÀ NỘI",
+    "items": [
+      {
+        "slug": "de-lot-ly-bang-go-voi-logo-chrome-hearts-sp0001",
+        "name": "Đế lót ly bằng gỗ với logo Chrome Hearts",
+        "image": "/images/SP0001-1.jpg",
+        "quantity": 1,
+        "price": 1570000
+      },
+      {
+        "slug": "mat-chrome-hearts-22k-baby-fat-cross-dinh-kim-cuong-sp0006",
+        "name": "Mặt Chrome Hearts 22k baby fat cross đính kim cương",
+        "image": "/images/SP0006-1.jpg",
+        "quantity": 1,
+        "price": 3420000
+      }
+    ],
+    "total": 4990000,
+    "shippingFee": 0,
+    "status": "pending",
+    "createdAt": "2026-09-30T15:07:42.707Z",
+    "paymentMethod": "Chuyển khoản SePay (VietQR)",
+    "paymentGateway": "sepay",
+    "paymentStatus": "pending",
+    "customerId": "3",
+    "timeline": [
+      {
+        "date": "2026-09-30T15:07:42.707Z",
+        "status": "Đặt hàng thành công",
+        "note": "Đơn hàng mới đã được gửi về hệ thống cửa hàng để xử lý"
+      }
+    ]
+  },
+  {
+    "id": "#2002",
+    "customerName": "Trần Nhật Minh",
+    "customerEmail": "trannhatminhforwork@gmail.com",
+    "customerPhone": "0363132364",
+    "customerAddress": "HÀ NỘI",
+    "items": [
+      {
+        "slug": "de-lot-ly-bang-go-voi-logo-chrome-hearts-sp0001",
+        "name": "Đế lót ly bằng gỗ với logo Chrome Hearts",
+        "image": "/images/SP0001-1.jpg",
+        "quantity": 1,
+        "price": 1570000
+      }
+    ],
+    "total": 1600000,
+    "shippingFee": 30000,
+    "status": "pending",
+    "createdAt": "2026-09-30T14:59:19.880Z",
+    "paymentMethod": "Chuyển khoản SePay (VietQR)",
+    "paymentGateway": "sepay",
+    "paymentStatus": "pending",
+    "customerId": "3",
+    "timeline": [
+      {
+        "date": "2026-09-30T14:59:19.880Z",
+        "status": "Đặt hàng thành công",
+        "note": "Đơn hàng mới đã được gửi về hệ thống cửa hàng để xử lý"
+      }
+    ]
+  },
+  {
     "id": "#2001",
     "customerName": "Hoàng Nhật Minh",
     "customerEmail": "nhatminh@example.com",

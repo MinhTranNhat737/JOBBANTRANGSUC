@@ -8,6 +8,7 @@ import { Reveal } from '@/components/site/reveal'
 import { formatPrice, getProductBySlug, getProducts, getRelatedProducts, getSiteUrl } from '@/lib/products'
 
 export const revalidate = 60
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   const products = await getProducts()
@@ -42,7 +43,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     description: product.description,
     sku: product.slug,
     material: product.material,
-    brand: { '@type': 'Brand', name: 'LEGEND' },
+    brand: { '@type': 'Brand', name: 'THUC LUXURY' },
     offers: {
       '@type': 'Offer',
       url: `${siteUrl}/products/${product.slug}`,

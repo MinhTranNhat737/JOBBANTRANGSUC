@@ -30,8 +30,9 @@ export type SepayPaymentInfo = {
  */
 export function getSepayTransferDescription(orderId: string): string {
   const cleanNum = orderId.replace(/\D/g, '') || '1090'
-  return `LEGEND${cleanNum}`
+  return `THUC${cleanNum}`
 }
+
 
 /**
  * Builds payment info and VietQR image URL for an order
@@ -61,9 +62,14 @@ export function generateSepayPaymentInfo(order: Order): SepayPaymentInfo {
  */
 export function parseOrderIdFromTransferContent(content: string): string | null {
   if (!content) return null
-  const match = content.match(/LEGEND\s*(\d+)/i) || content.match(/DH\s*(\d+)/i) || content.match(/#?(\d{4,})/i)
+  const match =
+    content.match(/THUC\s*(\d+)/i) ||
+    content.match(/LEGEND\s*(\d+)/i) ||
+    content.match(/DH\s*(\d+)/i) ||
+    content.match(/#?(\d{4,})/i)
   if (match && match[1]) {
     return `#${match[1]}`
   }
   return null
 }
+

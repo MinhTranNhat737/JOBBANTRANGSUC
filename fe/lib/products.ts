@@ -1,13 +1,15 @@
-export type Category = 'pendants' | 'rings' | 'earrings' | 'bracelets' | 'accessories'
+export type Category = 'pendants' | 'rings' | 'earrings' | 'bracelets' | 'accessories' | string
 
 export type Product = {
+  id?: number | string
   slug: string
   name: string
   category: Category
   price: number
   compareAtPrice?: number
   image: string
-  badge?: 'New' | 'Best seller' | 'Limited'
+  images?: { id?: number; url: string; is_primary?: boolean }[]
+  badge?: 'New' | 'Best seller' | 'Limited' | string
   stock: number
   sizes?: string[]
   material: string
@@ -209,20 +211,172 @@ const PRODUCTS: Product[] = [
   },
 ]
 
-export async function getProducts(category?: Category | 'all') {
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3001/api'
+
+export function normalizeCategory(cat?: string): Category {
+  if (!cat) return 'accessories'
+  const c = cat.toLowerCase().trim()
+  if (c === 'nhan' || c === 'rings') return 'rings'
+  if (c === 'mat-day-chuyen' || c === 'day-chuyen' || c === 'pendants') return 'pendants'
+  if (c === 'vong-tay-lac' || c === 'bracelets') return 'bracelets'
+  if (c === 'khuyen-tai' || c === 'earrings') return 'earrings'
+  return 'accessories'
+}
+
+function resolveProductImage(dbImages: any[], category: string, id: number): string {
+  if (Array.isArray(dbImages) && dbImages.length > 0) {
+    const primary = dbImages.find((img) => img.is_primary) || dbImages[0]
+    let url = primary?.url
+    if (url) {
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url
+      }
+      if (url.startsWith('images/')) {
+        return '/' + url
+      }
+      if (!url.startsWith('/')) {
+        return '/' + url
+      }
+      return url
+    }
+  }
+
+
+  // Graceful fallback to high quality jewelry imagery
+  const ringImages = ['/images/p-ring-sapphire.png', '/images/p-ring-signet.png']
+  const pendantImages = ['/images/p-pendant-lotus.png', '/images/p-pendant-ruby.png', '/images/p-pendant-dagger.png']
+  const braceletImages = ['/images/p-chain-bracelet.png']
+  const earringImages = ['/images/p-cuff-horseshoe.png']
+  const accessoryImages = ['/images/p-keychain.png']
+
+  const safeId = Math.abs(id || 1)
+  switch (category) {
+    case 'rings':
+      return ringImages[safeId % ringImages.length]
+    case 'pendants':
+      return pendantImages[safeId % pendantImages.length]
+    case 'bracelets':
+      return braceletImages[safeId % braceletImages.length]
+    case 'earrings':
+      return earringImages[safeId % earringImages.length]
+    case 'accessories':
+    default:
+      return accessoryImages[safeId % accessoryImages.length]
+  }
+}
+
+export function mapDbProductToProduct(db: any): Product {
+  const cat = normalizeCategory(db.category_slug || db.category || '')
+  const id = Number(db.id) || 1
+  const price =
+    Number(db.sale_price) ||
+    Number(db.price) ||
+    Number(db.import_price) ||
+    1850000 + (id % 9) * 350000
+  const compareAtPrice = db.compare_at_price
+    ? Number(db.compare_at_price)
+    : id % 3 === 0
+      ? price + 500000
+      : undefined
+  const image = resolveProductImage(db.images, cat, id)
+  const stock =
+    db.quantity !== undefined
+      ? Number(db.quantity)
+      : db.stock !== undefined
+        ? Number(db.stock)
+        : 10
+
+  let badge: string | undefined = db.badge
+  if (!badge) {
+    if (id % 5 === 0) badge = 'New'
+    else if (id % 7 === 0) badge = 'Best seller'
+    else if (id % 11 === 0) badge = 'Limited'
+  }
+
+  const sizes =
+    cat === 'rings'
+      ? RING_SIZES
+      : cat === 'bracelets'
+        ? ['17cm', '19cm', '21cm']
+        : undefined
+
+  return {
+    id: db.id,
+    slug: db.slug || `sp-${db.id}`,
+    name: db.name || 'Trang sức & Phụ kiện THUC LUXURY',
+    category: cat,
+    price,
+    compareAtPrice,
+    image,
+    images: db.images,
+    badge: badge as any,
+    stock,
+    sizes,
+    material:
+      db.material ||
+      (db.brand_name ? `${db.brand_name}, Bạc 925 cao cấp` : 'Bạc 925 chế tác thủ công'),
+    description:
+      db.description ||
+      `${db.name} - Tác phẩm chế tác thủ công tinh xảo, chất liệu bạc 925 cao cấp từ bộ sưu tập THUC LUXURY.`,
+  }
+}
+
+
+export async function getProducts(category?: Category | 'all'): Promise<Product[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/products?limit=100`, {
+      cache: 'no-store',
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const list = data.products || (Array.isArray(data) ? data : [])
+      if (list.length > 0) {
+        const mapped = list.map(mapDbProductToProduct)
+        if (!category || category === 'all') return mapped
+        const targetCat = normalizeCategory(category)
+        return mapped.filter((p: Product) => normalizeCategory(p.category) === targetCat)
+      }
+    }
+  } catch (err) {
+    console.warn('API error when fetching products from backend, using fallback:', err)
+  }
+
+  // Fallback to static PRODUCTS
   if (!category || category === 'all') return PRODUCTS
   return PRODUCTS.filter((p) => p.category === category)
 }
 
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/products/${encodeURIComponent(slug)}`, {
+      cache: 'no-store',
+    })
+    if (res.ok) {
+      const dbProduct = await res.json()
+      if (dbProduct && dbProduct.name) {
+        return mapDbProductToProduct(dbProduct)
+      }
+    }
+  } catch (err) {
+    console.warn(`API error for slug ${slug}, using fallback:`, err)
+  }
+
   return PRODUCTS.find((p) => p.slug === slug) ?? null
 }
 
-export async function getRelatedProducts(product: Product, limit = 4) {
-  return PRODUCTS.filter((p) => p.category === product.category && p.slug !== product.slug).slice(
-    0,
-    limit,
-  )
+export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
+  try {
+    const all = await getProducts()
+    const sameCat = all.filter((p) => p.category === product.category && p.slug !== product.slug)
+    if (sameCat.length >= limit) return sameCat.slice(0, limit)
+    return all.filter((p) => p.slug !== product.slug).slice(0, limit)
+  } catch {
+    return PRODUCTS.filter((p) => p.category === product.category && p.slug !== product.slug).slice(
+      0,
+      limit,
+    )
+  }
 }
 
 export function formatPrice(value: number) {
@@ -233,3 +387,4 @@ export function getSiteUrl() {
   const host = process.env.VERCEL_PROJECT_PRODUCTION_URL
   return host ? `https://${host}` : 'http://localhost:3000'
 }
+

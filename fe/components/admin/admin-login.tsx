@@ -22,7 +22,7 @@ export function AdminLogin() {
     <div className="admin-login-page">
       <div className="admin-login-card">
         <div className="login-logo">
-          <h1>LEGEND</h1>
+          <h1>THUC LUXURY</h1>
           <span>Admin Panel</span>
         </div>
 
@@ -32,7 +32,7 @@ export function AdminLogin() {
             <input
               className="admin-input"
               type="email"
-              placeholder="admin@legend.vn"
+              placeholder="admin@thucluxury.vn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

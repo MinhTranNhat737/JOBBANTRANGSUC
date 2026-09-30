@@ -25,20 +25,21 @@ const cinzel = Cinzel({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: 'LEGEND — Handcrafted Silver Jewelry',
-    template: '%s | LEGEND',
+    default: 'THUC LUXURY — Trang Sức & Phụ Kiện Cao Cấp',
+    template: '%s | THUC LUXURY',
   },
   description:
-    'LEGEND is a handcrafted fine jewelry brand for men. Sterling silver rings, pendants, earrings and bracelets inspired by Eastern mythology.',
-  keywords: ['silver jewelry', 'men jewelry', 'sterling silver rings', 'handcrafted', 'LEGEND'],
+    'THUC LUXURY - Thương hiệu trang sức bạc 925 và phụ kiện cao cấp, chế tác thủ công tinh xảo, nhẫn, mặt dây chuyền, vòng tay, phong cách sang trọng và đẳng cấp.',
+  keywords: ['THUC LUXURY', 'trang sức cao cấp', 'bạc 925', 'phụ kiện nam', 'luxury jewelry', 'trang sức thủ công'],
   openGraph: {
     type: 'website',
-    siteName: 'LEGEND',
+    siteName: 'THUC LUXURY',
     images: ['/images/hero.png'],
   },
   twitter: { card: 'summary_large_image' },
   generator: 'v0.app',
 }
+
 
 export const viewport: Viewport = {
   colorScheme: 'dark light',

@@ -49,7 +49,7 @@ export async function createMomoPayment(order: Order): Promise<MomoCreatePayment
 
   const orderId = `${order.id.replace('#', '')}_${Date.now()}`
   const requestId = orderId
-  const orderInfo = `Thanh toan don hang ${order.id} tai LEGEND Jewelry`
+  const orderInfo = `Thanh toan don hang ${order.id} tai THUC LUXURY`
   const redirectUrl = `${siteUrl}/order-success?id=${encodeURIComponent(order.id)}&payment=momo`
   const ipnUrl = `${siteUrl}/api/payment/momo/ipn`
   const amount = order.total
@@ -61,8 +61,8 @@ export async function createMomoPayment(order: Order): Promise<MomoCreatePayment
 
   const requestBody = {
     partnerCode,
-    partnerName: 'LEGEND Fine Jewelry',
-    storeId: 'LegendJewelryStore',
+    partnerName: 'THUC LUXURY',
+    storeId: 'ThucLuxuryStore',
     requestId,
     amount,
     orderId,

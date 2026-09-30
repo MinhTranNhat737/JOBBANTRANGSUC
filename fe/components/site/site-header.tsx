@@ -436,7 +436,7 @@ export function SiteHeader() {
             fallback={
               <nav className="hidden items-center gap-8 lg:flex">
                 <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">BỘ SƯU TẬP</span>
-                <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">VỀ LEGEND</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">VỀ THUC LUXURY</span>
               </nav>
             }
           >
@@ -451,19 +451,20 @@ export function SiteHeader() {
         {/* Logo chính giữa: To, rõ ràng, sang trọng */}
         <Link
           href="/"
-          aria-label="LEGEND trang chủ"
+          aria-label="THUC LUXURY trang chủ"
           className="flex shrink-0 flex-col items-center px-4 text-center transition-opacity hover:opacity-90"
         >
-          <span className="font-display text-2xl font-bold tracking-[0.3em] text-[var(--text-primary)] sm:text-3xl lg:text-4xl">
-            LEGEND
+          <span className="font-display text-2xl font-bold tracking-[0.25em] text-[var(--text-primary)] sm:text-3xl lg:text-4xl">
+            THUC LUXURY
           </span>
           <span
             className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.35em] text-[var(--text-muted)]"
             aria-hidden="true"
           >
-            FINE JEWELRY
+            FINE JEWELRY &amp; ACCESSORIES
           </span>
         </Link>
+
 
         {/* Cánh phải: Theme sáng/tối, Ngôn ngữ, Tra cứu đơn hàng, Tìm kiếm, Tài khoản, Giỏ hàng */}
         <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2.5">

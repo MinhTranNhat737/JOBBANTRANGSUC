@@ -27,7 +27,7 @@ export function SiteFooter() {
         {
           title: 'About the Brand',
           links: [
-            { label: 'The LEGEND Story', href: '/about' },
+            { label: 'The THUC LUXURY Story', href: '/about' },
             { label: 'Artisan Workshop', href: '/about' },
             { label: 'Vietnamese Silversmiths', href: '/about' },
             { label: 'Member Privileges', href: '/about' },
@@ -59,7 +59,7 @@ export function SiteFooter() {
         {
           title: 'Về thương hiệu',
           links: [
-            { label: 'Câu chuyện LEGEND', href: '/about' },
+            { label: 'Câu chuyện THUC LUXURY', href: '/about' },
             { label: 'Không gian xưởng chế tác', href: '/about' },
             { label: 'Nghệ nhân Việt Nam', href: '/about' },
             { label: 'Đặc quyền thành viên', href: '/about' },
@@ -81,7 +81,7 @@ export function SiteFooter() {
     <footer className="border-t border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-colors">
       <div className="mx-auto grid max-w-screen-2xl gap-10 px-4 py-16 md:grid-cols-2 md:px-8 lg:grid-cols-[2fr_1fr_1fr_1fr]">
         <div className="max-w-sm">
-          <span className="font-display text-2xl font-bold tracking-[0.25em] text-[var(--text-primary)]">LEGEND</span>
+          <span className="font-display text-2xl font-bold tracking-[0.25em] text-[var(--text-primary)]">THUC LUXURY</span>
           <p className="mt-4 text-sm leading-relaxed text-[var(--text-secondary)]">
             {isEn
               ? 'Premier handcrafted 925 sterling silver jewelry. Each piece is cast and hand-engraved with dedication by Vietnamese master silversmiths, imbued with ancient dignity and cultural depth.'
@@ -93,7 +93,7 @@ export function SiteFooter() {
             </p>
             <p>Hanoi: 18 Old Quarter, Hoan Kiem</p>
             <p>Ho Chi Minh City: 88 Dong Khoi, District 1</p>
-            <p className="text-[var(--text-muted)]">Email: lienhe@legend.vn</p>
+            <p className="text-[var(--text-muted)]">Email: lienhe@thucluxury.vn</p>
           </address>
         </div>
         {columns.map((col) => (
@@ -114,8 +114,9 @@ export function SiteFooter() {
       <div className="border-t border-[var(--border-subtle)]">
         <div className="mx-auto flex max-w-screen-2xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-[var(--text-muted)] sm:flex-row md:px-8">
           <p>
-            © {new Date().getFullYear()} LEGEND — {isEn ? 'Vietnamese Handcrafted Silver. All rights reserved.' : 'Trang sức Bạc Việt Nam. Tất cả quyền được bảo lưu.'}
+            © {new Date().getFullYear()} THUC LUXURY — {isEn ? 'Vietnamese Handcrafted Silver. All rights reserved.' : 'Trang sức Bạc Việt Nam. Tất cả quyền được bảo lưu.'}
           </p>
+
           <p className="text-[var(--text-secondary)]">
             {isEn ? 'Certified 925 Sterling Silver Laboratory Tested' : 'Chất lượng bạc 925 chuẩn kiểm định toàn quốc'}
           </p>

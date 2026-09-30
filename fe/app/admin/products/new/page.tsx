@@ -2,20 +2,23 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Save, Upload } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Save, Upload, Loader2 } from 'lucide-react'
+import { API_BASE_URL } from '@/lib/products'
 
 const CATEGORIES = [
-  { value: 'rings', label: 'Nhẫn bạc' },
-  { value: 'pendants', label: 'Mặt dây chuyền' },
-  { value: 'bracelets', label: 'Vòng & Lắc tay' },
-  { value: 'earrings', label: 'Khuyên tai' },
-  { value: 'accessories', label: 'Phụ kiện' },
+  { value: 'rings', label: 'Nhẫn bạc', id: 1 },
+  { value: 'pendants', label: 'Mặt dây chuyền', id: 2 },
+  { value: 'bracelets', label: 'Vòng & Lắc tay', id: 4 },
+  { value: 'earrings', label: 'Khuyên tai', id: 5 },
+  { value: 'accessories', label: 'Phụ kiện', id: 13 },
 ]
 
 const RING_SIZES = ['8', '9', '10', '11', '12', '13']
 const BRACELET_SIZES = ['17cm', '19cm', '21cm']
 
 export default function NewProductPage() {
+  const router = useRouter()
   const [name, setName] = useState('')
   const [category, setCategory] = useState('rings')
   const [price, setPrice] = useState('')
@@ -25,9 +28,14 @@ export default function NewProductPage() {
   const [description, setDescription] = useState('')
   const [badge, setBadge] = useState('none')
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const slug = name
     .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
@@ -36,6 +44,55 @@ export default function NewProductPage() {
 
   const toggleSize = (s: string) => {
     setSelectedSizes(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!name.trim()) {
+      alert('Vui lòng nhập tên sản phẩm')
+      return
+    }
+
+    setSaving(true)
+    setError(null)
+
+    try {
+      const selectedCat = CATEGORIES.find((c) => c.value === category)
+      const payload = {
+        name: name.trim(),
+        slug: slug || `sp-${Date.now()}`,
+        description: description.trim() || undefined,
+        category_id: selectedCat?.id || 1,
+        brand_id: 1, // Chrome Hearts
+        sale_price: price ? parseFloat(price) : null,
+        import_price: comparePrice ? parseFloat(comparePrice) : null,
+        quantity: stock ? parseInt(stock) : 10,
+        status: 'active',
+        qc_status: 'passed',
+        note: material ? `Chất liệu: ${material}` : undefined,
+      }
+
+      const res = await fetch(`${API_BASE_URL}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Lỗi khi lưu sản phẩm')
+      }
+
+      alert('Tạo sản phẩm thành công!')
+      router.push('/admin/products')
+      router.refresh()
+    } catch (err: any) {
+      console.error('Submit product error:', err)
+      setError(err.message || 'Lỗi lưu sản phẩm')
+      alert('Lỗi: ' + (err.message || 'Không thể lưu'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -162,8 +219,14 @@ export default function NewProductPage() {
         <Link href="/admin/products" className="admin-btn admin-btn-secondary">
           Hủy
         </Link>
-        <button className="admin-btn admin-btn-primary">
-          <Save size={16} /> Lưu sản phẩm
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={saving}
+          className="admin-btn admin-btn-primary"
+        >
+          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          {saving ? 'Đang lưu...' : 'Lưu sản phẩm'}
         </button>
       </div>
     </>

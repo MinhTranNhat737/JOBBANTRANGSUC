@@ -21,10 +21,10 @@ export function getDynamicSettings(): DynamicSettings {
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || '',
     telegramChatId: process.env.TELEGRAM_CHAT_ID || '',
     resendApiKey: process.env.RESEND_API_KEY || '',
-    adminEmail: process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@legend.vn',
-    sepayAccountNumber: process.env.SEPAY_ACCOUNT_NUMBER || '090123456789',
+    adminEmail: process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@thucluxury.vn',
+    sepayAccountNumber: process.env.SEPAY_ACCOUNT_NUMBER || '0363132364',
     sepayBankCode: process.env.SEPAY_BANK_CODE || 'MBBank',
-    sepayAccountName: process.env.SEPAY_ACCOUNT_NAME || 'CONG TY TNHH TRANG SUC LEGEND',
+    sepayAccountName: process.env.SEPAY_ACCOUNT_NAME || 'TRAN NHAT MINH',
     momoPartnerCode: process.env.MOMO_PARTNER_CODE || 'MOMO',
   }
 

@@ -20,7 +20,7 @@ function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
@@ -30,15 +30,18 @@ function RegisterForm() {
     }
 
     setLoading(true)
-    setTimeout(() => {
-      const res = register({ name, email, phone, address, password })
-      setLoading(false)
+    try {
+      const res = await register({ name, email, phone, address, password })
       if (res.success) {
         router.push(redirect)
       } else {
         setError(res.error || 'Đăng ký không thành công.')
       }
-    }, 300)
+    } catch (err: any) {
+      setError(err?.message || 'Có lỗi xảy ra khi tạo tài khoản.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -57,7 +60,7 @@ function RegisterForm() {
             ĐĂNG KÝ
           </h1>
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--text-muted)]">
-            Thành viên mới LEGEND
+            Thành viên mới THUC LUXURY
           </p>
         </div>
 

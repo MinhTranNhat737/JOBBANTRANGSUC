@@ -139,7 +139,7 @@ export const TRANSLATIONS = {
       shipping: 'Chính sách vận chuyển & đổi trả',
       contact: 'Liên hệ nghệ nhân',
       certified: 'Bạc 925 chuẩn kiểm định quốc tế',
-      copyright: '© 2026 LEGEND. Bảo lưu mọi quyền.',
+      copyright: '© 2026 THUC LUXURY. Bảo lưu mọi quyền.',
     },
     catalog: {
       title: 'Bộ sưu tập trang sức',
@@ -281,7 +281,7 @@ export const TRANSLATIONS = {
       shipping: 'Shipping & Return Policy',
       contact: 'Contact & Atelier',
       certified: 'International Standard 925 Silver',
-      copyright: '© 2026 LEGEND. All rights reserved.',
+      copyright: '© 2026 THUC LUXURY. All rights reserved.',
     },
     catalog: {
       title: 'Jewelry Collection',

@@ -217,11 +217,11 @@ const FOUNDER_CONTENT = {
       '"Mỗi món trang sức không chỉ là vật trang trí — đó là lời tuyên ngôn về bản lĩnh, về câu chuyện mà người đàn ông muốn kể cho thế giới."',
     paragraphs: [
       'Từ nhỏ, tôi đã bị cuốn hút bởi ánh bạc lung linh trong xưởng rèn của ông ngoại. Những chiếc búa nhỏ gõ đều trên bạc nóng, từng nét chạm khắc tinh xảo — đó là bài học đầu tiên về sự kiên nhẫn và tận tâm.',
-      'Năm 2018, sau hơn mười năm miệt mài nghiên cứu kỹ thuật kim hoàn Đông Á và phương Tây, tôi thành lập LEGEND với một tầm nhìn đơn giản: tạo ra những tác phẩm bạc 925 mang hồn cốt văn hóa Việt, dành riêng cho người đàn ông có gu thẩm mỹ khác biệt.',
-      'Mỗi sản phẩm của LEGEND đều được chế tác thủ công hoàn toàn, từ khâu phác thảo, đúc khuôn, chạm khắc đến đánh bóng cuối cùng. Không có hai món trang sức nào giống nhau — và đó chính là giá trị mà chúng tôi theo đuổi.',
-      'Với LEGEND, tôi muốn chứng minh rằng trang sức nam không cần phải phô trương. Sức mạnh nằm ở sự tinh tế, ở câu chuyện ẩn sau từng đường nét, và ở chất liệu trường tồn cùng năm tháng.',
+      'Năm 2018, sau hơn mười năm miệt mài nghiên cứu kỹ thuật kim hoàn Đông Á và phương Tây, tôi thành lập THUC LUXURY với một tầm nhìn đơn giản: tạo ra những tác phẩm bạc 925 mang hồn cốt văn hóa và phong cách xa xỉ, dành riêng cho người đàn ông có gu thẩm mỹ khác biệt.',
+      'Mỗi sản phẩm của THUC LUXURY đều được chế tác thủ công hoàn toàn, từ khâu phác thảo, đúc khuôn, chạm khắc đến đánh bóng cuối cùng. Không có hai món trang sức nào giống nhau — và đó chính là giá trị mà chúng tôi theo đuổi.',
+      'Với THUC LUXURY, tôi muốn chứng minh rằng trang sức nam không cần phải phô trương. Sức mạnh nằm ở sự tinh tế, ở câu chuyện ẩn sau từng đường nét, và ở chất liệu trường tồn cùng năm tháng.',
     ],
-    signOff: 'LEGEND — Since 2018',
+    signOff: 'THUC LUXURY — Since 2018',
     values: [
       {
         label: '01',
@@ -243,18 +243,18 @@ const FOUNDER_CONTENT = {
   en: {
     label: 'The Founder',
     title: 'The Artisan & The Vision',
-    subtitle: 'A journey from traditional goldsmithing love to a bold jewelry brand.',
+    subtitle: 'A journey from traditional goldsmithing love to a bold luxury jewelry brand.',
     founderName: 'Nguyễn Thanh Minh',
     founderRole: 'Founder & Master Artisan',
     quote:
       '"Every piece of jewelry is more than an accessory — it\'s a declaration of character, a story the man chooses to tell the world."',
     paragraphs: [
       'From a young age, I was captivated by the shimmering silver in my grandfather\'s forge. The rhythmic tap of small hammers on heated silver, each intricate engraving — those were my first lessons in patience and devotion.',
-      'In 2018, after over a decade studying East Asian and Western goldsmithing techniques, I founded LEGEND with a simple vision: to create 925 sterling silver masterpieces imbued with Vietnamese cultural soul, crafted exclusively for men with distinctive taste.',
-      'Every LEGEND piece is entirely handcrafted — from the initial sketch, mold casting, and engraving to the final polish. No two pieces are ever alike — and that is precisely the value we pursue.',
-      'With LEGEND, I want to prove that men\'s jewelry need not be ostentatious. True power lies in refinement, in the story hidden behind every curve, and in materials that endure the passage of time.',
+      'In 2018, after over a decade studying East Asian and Western goldsmithing techniques, I founded THUC LUXURY with a simple vision: to create 925 sterling silver masterpieces imbued with cultural soul, crafted exclusively for men with distinctive taste.',
+      'Every THUC LUXURY piece is entirely handcrafted — from the initial sketch, mold casting, and engraving to the final polish. No two pieces are ever alike — and that is precisely the value we pursue.',
+      'With THUC LUXURY, I want to prove that men\'s jewelry need not be ostentatious. True power lies in refinement, in the story hidden behind every curve, and in materials that endure the passage of time.',
     ],
-    signOff: 'LEGEND — Since 2018',
+    signOff: 'THUC LUXURY — Since 2018',
     values: [
       {
         label: '01',

@@ -45,9 +45,10 @@ export function AdminSidebar() {
       <aside className={sidebarClass}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <h1>LEGEND</h1>
+          <h1 style={{ fontSize: 16 }}>THUC LUXURY</h1>
           <span>Admin</span>
         </div>
+
 
         {/* Navigation */}
         <nav className="sidebar-nav">

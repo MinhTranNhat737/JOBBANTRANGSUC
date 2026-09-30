@@ -18,31 +18,41 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    setTimeout(() => {
-      const res = login(identifier, password)
-      setLoading(false)
+    try {
+      const res = await login(identifier, password)
       if (res.success) {
         router.push(redirect)
       } else {
         setError(res.error || 'Thông tin đăng nhập không chính xác.')
       }
-    }, 300)
+    } catch (err: any) {
+      setError(err?.message || 'Có lỗi xảy ra khi đăng nhập.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleDemo = () => {
-    setIdentifier('khachhang@legend.vn')
-    setPassword('123456')
+  const handleDemo = async () => {
+    setIdentifier('admin')
+    setPassword('admin123')
     setError(null)
     setLoading(true)
-    setTimeout(() => {
-      login('khachhang@legend.vn', '123456')
+    try {
+      const res = await login('admin', 'admin123')
+      if (res.success) {
+        router.push(redirect)
+      } else {
+        setError(res.error || 'Không thể đăng nhập tài khoản demo')
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Lỗi kết nối')
+    } finally {
       setLoading(false)
-      router.push(redirect)
-    }, 300)
+    }
   }
 
   return (

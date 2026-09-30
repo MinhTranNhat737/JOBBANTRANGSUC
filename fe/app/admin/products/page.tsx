@@ -1,30 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Plus, Search, LayoutGrid, LayoutList, Pencil, Trash2 } from 'lucide-react'
-import { formatPrice } from '@/lib/products'
+import { Plus, Search, LayoutGrid, LayoutList, Pencil, Trash2, RefreshCw } from 'lucide-react'
+import { formatPrice, getProducts, API_BASE_URL } from '@/lib/products'
 import type { Product, Category } from '@/lib/products'
-
-// Import product data — in a real app this would be an API call
-const ALL_PRODUCTS: Product[] = [
-  { slug: 'libra-lotus-pendant', name: 'Libra Lotus Pendant', category: 'pendants', price: 2450000, image: '/images/p-pendant-lotus.png', badge: 'New', stock: 12, material: '925 Sterling Silver, oxidized finish', description: '' },
-  { slug: 'vermilion-bird-ring', name: 'Vermilion Bird Ring', category: 'rings', price: 3890000, image: '/images/p-ring-sapphire.png', badge: 'Best seller', stock: 5, sizes: ['8','9','10','11','12','13'], material: '925 Sterling Silver, lab sapphire', description: '' },
-  { slug: 'vermilion-bird-pendant', name: 'Vermilion Bird Pendant', category: 'pendants', price: 2190000, image: '/images/p-pendant-dagger.png', stock: 9, material: '925 Sterling Silver', description: '' },
-  { slug: 'red-dragon-tag-pendant', name: 'Red Dragon Tag Pendant', category: 'pendants', price: 2690000, image: '/images/p-pendant-ruby.png', badge: 'Limited', stock: 3, material: '925 Sterling Silver, cold enamel', description: '' },
-  { slug: 'chimaera-lock-cuff', name: 'Chimaera Lock Cuff', category: 'earrings', price: 1450000, image: '/images/p-cuff-horseshoe.png', stock: 18, material: '925 Sterling Silver', description: '' },
-  { slug: 'gothic-cross-signet', name: 'Gothic Cross Signet Ring', category: 'rings', price: 3250000, image: '/images/p-ring-signet.png', badge: 'New', stock: 7, sizes: ['8','9','10','11','12','13'], material: '925 Sterling Silver', description: '' },
-  { slug: 'fleur-link-bracelet', name: 'Fleur Link Bracelet', category: 'bracelets', price: 5790000, image: '/images/p-chain-bracelet.png', stock: 4, sizes: ['17cm','19cm','21cm'], material: '925 Sterling Silver', description: '' },
-  { slug: 'lotus-warrior-keychain', name: 'Lotus Warrior Keychain', category: 'accessories', price: 1890000, image: '/images/p-keychain.png', stock: 0, material: '925 Sterling Silver, steel clip', description: '' },
-  { slug: 'mythic-dagger-earring', name: 'Mythic Dagger Earring', category: 'earrings', price: 1290000, image: '/images/p-pendant-dagger.png', stock: 22, material: '925 Sterling Silver', description: '' },
-  { slug: 'azure-scale-band', name: 'Azure Scale Band', category: 'rings', price: 2990000, compareAtPrice: 3490000, image: '/images/p-ring-sapphire.png', stock: 10, sizes: ['8','9','10','11','12','13'], material: '925 Sterling Silver', description: '' },
-  { slug: 'sunflower-chain-bracelet', name: 'Sunflower Chain Bracelet', category: 'bracelets', price: 4590000, image: '/images/p-chain-bracelet.png', badge: 'Best seller', stock: 6, sizes: ['17cm','19cm','21cm'], material: '925 Sterling Silver', description: '' },
-  { slug: 'twin-lotus-pendant', name: 'Twin Lotus Pendant', category: 'pendants', price: 2350000, image: '/images/p-pendant-lotus.png', stock: 14, material: '925 Sterling Silver', description: '' },
-  { slug: 'horseshoe-hoop', name: 'Horseshoe Hoop Earring', category: 'earrings', price: 1190000, image: '/images/p-cuff-horseshoe.png', stock: 25, material: '925 Sterling Silver', description: '' },
-  { slug: 'crest-signet-heavy', name: 'Crest Signet Heavy', category: 'rings', price: 4290000, image: '/images/p-ring-signet.png', badge: 'Limited', stock: 2, sizes: ['8','9','10','11','12','13'], material: '925 Sterling Silver', description: '' },
-  { slug: 'warrior-clip-charm', name: 'Warrior Clip Charm', category: 'accessories', price: 1590000, image: '/images/p-keychain.png', stock: 11, material: '925 Sterling Silver', description: '' },
-  { slug: 'dragon-tag-mini', name: 'Dragon Tag Mini', category: 'pendants', price: 1790000, image: '/images/p-pendant-ruby.png', stock: 8, material: '925 Sterling Silver, cold enamel', description: '' },
-]
 
 const CATEGORY_LABELS: Record<string, string> = {
   all: 'Tất cả',
@@ -46,28 +26,77 @@ function getBadgeClass(badge?: string) {
 }
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<number | string | null>(null)
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState<Category | 'all'>('all')
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
 
+  const loadProducts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await getProducts()
+      setProducts(data)
+    } catch (err) {
+      console.error('Failed to load products:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadProducts()
+  }, [loadProducts])
+
+  const handleDelete = async (p: Product) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${p.name}"?`)) return
+    if (p.id) {
+      setDeletingId(p.id)
+      try {
+        const res = await fetch(`${API_BASE_URL}/products/${p.id}`, { method: 'DELETE' })
+        if (!res.ok) throw new Error('Không thể xóa trên server')
+        setProducts((prev) => prev.filter((item) => item.id !== p.id))
+      } catch (err: any) {
+        alert('Lỗi xóa sản phẩm: ' + err.message)
+      } finally {
+        setDeletingId(null)
+      }
+    } else {
+      setProducts((prev) => prev.filter((item) => item.slug !== p.slug))
+    }
+  }
+
   const filtered = useMemo(() => {
-    return ALL_PRODUCTS.filter(p => {
+    return products.filter((p) => {
       const matchCat = catFilter === 'all' || p.category === catFilter
       const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase())
       return matchCat && matchSearch
     })
-  }, [search, catFilter])
+  }, [products, search, catFilter])
+
 
   return (
     <>
       <div className="admin-page-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1>Sản phẩm</h1>
-          <p>Quản lý {ALL_PRODUCTS.length} sản phẩm trong cửa hàng</p>
+          <p>
+            {loading ? 'Đang tải dữ liệu từ database...' : `Quản lý ${products.length} sản phẩm trong cửa hàng`}
+          </p>
         </div>
-        <Link href="/admin/products/new" className="admin-btn admin-btn-primary">
-          <Plus size={16} /> Thêm sản phẩm
-        </Link>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={loadProducts}
+            className="admin-btn admin-btn-secondary"
+            title="Làm mới dữ liệu từ Database"
+          >
+            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} /> Tải lại
+          </button>
+          <Link href="/admin/products/new" className="admin-btn admin-btn-primary">
+            <Plus size={16} /> Thêm sản phẩm
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -154,7 +183,13 @@ export default function ProductsPage() {
                         <Link href={`/admin/products/${p.slug}`} className="admin-btn-icon">
                           <Pencil size={15} />
                         </Link>
-                        <button className="admin-btn-icon" style={{ color: 'var(--admin-danger)' }}>
+                        <button
+                          className="admin-btn-icon"
+                          style={{ color: 'var(--admin-danger)' }}
+                          onClick={() => handleDelete(p)}
+                          disabled={deletingId === p.id}
+                          title="Xóa sản phẩm"
+                        >
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -165,7 +200,7 @@ export default function ProductsPage() {
             </table>
           </div>
           <div className="admin-pagination">
-            <span className="pagination-info">Hiển thị {filtered.length} / {ALL_PRODUCTS.length} sản phẩm</span>
+            <span className="pagination-info">Hiển thị {filtered.length} / {products.length} sản phẩm</span>
           </div>
         </div>
       )}
@@ -200,7 +235,13 @@ export default function ProductsPage() {
                 <Link href={`/admin/products/${p.slug}`} className="admin-btn admin-btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '6px 0', fontSize: 12 }}>
                   <Pencil size={13} /> Sửa
                 </Link>
-                <button className="admin-btn admin-btn-danger" style={{ padding: '6px 10px', fontSize: 12 }}>
+                <button
+                  className="admin-btn admin-btn-danger"
+                  style={{ padding: '6px 10px', fontSize: 12 }}
+                  onClick={() => handleDelete(p)}
+                  disabled={deletingId === p.id}
+                  title="Xóa sản phẩm"
+                >
                   <Trash2 size={13} />
                 </button>
               </div>

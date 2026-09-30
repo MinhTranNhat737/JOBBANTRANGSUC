@@ -3,12 +3,12 @@
 export const PAYMENT_CONFIG = {
   // ── SEPAY (VietQR Ngân hàng tự động) ──────────────────────────────
   sepay: {
-    bankCode: process.env.SEPAY_BANK_CODE || 'MBBank', // MBBank, Vietcombank, Techcombank, ACB, VPBank, etc.
-    accountNumber: process.env.SEPAY_ACCOUNT_NUMBER || '090123456789',
-    accountName: process.env.SEPAY_ACCOUNT_NAME || 'CONG TY TNHH TRANG SUC LEGEND',
+    bankCode: process.env.NEXT_PUBLIC_SEPAY_BANK_CODE || process.env.SEPAY_BANK_CODE || 'MBBank',
+    accountNumber: process.env.NEXT_PUBLIC_SEPAY_ACCOUNT_NUMBER || process.env.SEPAY_ACCOUNT_NUMBER || '0363132364',
+    accountName: process.env.NEXT_PUBLIC_SEPAY_ACCOUNT_NAME || process.env.SEPAY_ACCOUNT_NAME || 'TRAN NHAT MINH',
     apiToken: process.env.SEPAY_API_TOKEN || '',
     webhookSecret: process.env.SEPAY_WEBHOOK_SECRET || '',
-    template: 'compact', // compact, qr_only, print
+    template: 'compact2', // compact2, compact, qr_only, print
   },
 
   // ── MOMO PAYMENT GATEWAY (Ví điện tử MoMo) ────────────────────────
@@ -29,9 +29,10 @@ export const PAYMENT_CONFIG = {
   // ── EMAIL INVOICING (Resend / SMTP) ───────────────────────────────
   email: {
     resendApiKey: process.env.RESEND_API_KEY || '',
-    fromAddress: process.env.EMAIL_FROM || 'LEGEND Fine Jewelry <orders@legend.vn>',
-    adminEmail: process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@legend.vn',
+    fromAddress: process.env.EMAIL_FROM || 'THUC LUXURY <orders@thucluxury.vn>',
+    adminEmail: process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@thucluxury.vn',
   },
+
 
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 }

@@ -11,7 +11,7 @@ export function Hero() {
       <div className="absolute inset-0">
         <Image
           src="/images/hero.png"
-          alt="Trang sức bạc thủ công LEGEND"
+          alt="Trang sức bạc & phụ kiện cao cấp THUC LUXURY"
           fill
           priority
           sizes="100vw"
@@ -31,12 +31,13 @@ export function Hero() {
       {/* Spacious, Minimalist Hero Content */}
       <div className="relative z-10 mx-auto max-w-4xl px-6 py-20 text-center">
         <span className="inline-block text-xs uppercase tracking-[0.35em] text-zinc-400 font-medium mb-4">
-          Bạc 925 Chế tác Thủ công
+          Bạc 925 &amp; Phụ Kiện Xa Xỉ
         </span>
 
         <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-[0.15em] text-[var(--text-primary)] uppercase leading-tight sm:leading-tight">
-          LEGEND
+          THUC LUXURY
         </h1>
+
 
         <p className="mt-4 text-sm sm:text-base tracking-[0.2em] uppercase text-[var(--text-secondary)] font-light max-w-lg mx-auto">
           Khí chất uy nghiêm • Biểu tượng hộ mệnh

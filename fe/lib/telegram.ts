@@ -53,7 +53,7 @@ export function buildOrderTelegramMessage(order: Order, paymentNote?: string): s
     .join('\n')
 
   return `
-👑 <b>ĐƠN HÀNG MỚI TẠI LEGEND JEWELRY</b> 👑
+👑 <b>ĐƠN HÀNG MỚI TẠI THUC LUXURY</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📦 <b>Mã đơn hàng:</b> <code>${order.id}</code>
 ⚡ <b>Trạng thái:</b> ${statusIcon}

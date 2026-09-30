@@ -57,7 +57,7 @@ export function generateOrderInvoiceHtml(order: Order, isAdmin = false): string 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hóa Đơn LEGEND #${order.id}</title>
+  <title>Hóa Đơn THUC LUXURY #${order.id}</title>
 </head>
 <body style="margin:0;padding:0;background-color:#09090b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#f4f4f5;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#09090b;padding:30px 10px;">
@@ -69,8 +69,8 @@ export function generateOrderInvoiceHtml(order: Order, isAdmin = false): string 
           <!-- Header Logo -->
           <tr>
             <td style="padding:36px 32px 24px;text-align:center;background:linear-gradient(180deg,#1c1c22 0%,#121215 100%);border-bottom:1px solid #27272a;">
-              <div style="font-size:26px;font-weight:800;letter-spacing:0.25em;color:#ffffff;text-transform:uppercase;">LEGEND</div>
-              <div style="font-size:9px;font-weight:600;letter-spacing:0.35em;color:#a1a1aa;margin-top:4px;text-transform:uppercase;">HANDCRAFTED FINE JEWELRY</div>
+              <div style="font-size:26px;font-weight:800;letter-spacing:0.25em;color:#ffffff;text-transform:uppercase;">THUC LUXURY</div>
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.35em;color:#a1a1aa;margin-top:4px;text-transform:uppercase;">FINE JEWELRY & ACCESSORIES</div>
               <div style="margin-top:16px;">${paymentBadge}</div>
             </td>
           </tr>
@@ -85,9 +85,10 @@ export function generateOrderInvoiceHtml(order: Order, isAdmin = false): string 
                 ${
                   isAdmin
                     ? `Đơn hàng mới vừa được đặt và thanh toán trên hệ thống. Dưới đây là thông tin chi tiết để đóng gói và xử lý giao nhận.`
-                    : `Kính chào quý khách <strong>${order.customerName}</strong>, cảm ơn quý khách đã mua sắm tại LEGEND. Đơn hàng của quý khách đã được tiếp nhận và đóng gói trong hộp nhung bảo hành chính hãng.`
+                    : `Kính chào quý khách <strong>${order.customerName}</strong>, cảm ơn quý khách đã mua sắm tại THUC LUXURY. Đơn hàng của quý khách đã được tiếp nhận và đóng gói trong hộp nhung bảo hành chính hãng.`
                 }
               </p>
+
             </td>
           </tr>
 
@@ -157,7 +158,7 @@ export function generateOrderInvoiceHtml(order: Order, isAdmin = false): string 
               </a>
               <div style="font-size:11px;color:#71717a;margin-top:16px;line-height:1.5;">
                 Mọi thắc mắc về đơn hàng, vui lòng liên hệ hotline: <strong>1900 1234</strong> (8:00 - 21:00)<br>
-                Bảo hành làm sáng & đánh bóng trang sức bạc 925 trọn đời tại tất cả showroom LEGEND.
+                Bảo hành làm sáng & đánh bóng trang sức bạc 925 trọn đời tại tất cả showroom THUC LUXURY.
               </div>
             </td>
           </tr>
@@ -185,7 +186,8 @@ export async function sendInvoiceEmail({
   const isAdmin = recipientType === 'admin'
   const subject = isAdmin
     ? `[ĐƠN HÀNG MỚI] #${order.id} - ${order.customerName} - ${formatPriceVnd(order.total)}`
-    : `Hóa đơn xác nhận đơn hàng #${order.id} từ LEGEND Jewelry`
+    : `Hóa đơn xác nhận đơn hàng #${order.id} từ THUC LUXURY`
+
 
   const html = generateOrderInvoiceHtml(order, isAdmin)
   const { resendApiKey, fromAddress } = PAYMENT_CONFIG.email
