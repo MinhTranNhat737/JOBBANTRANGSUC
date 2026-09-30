@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ProductPurchase } from '@/components/product/product-purchase'
+import { ProductZoom } from '@/components/product/product-zoom'
 import { ProductCard } from '@/components/site/product-card'
 import { Reveal } from '@/components/site/reveal'
 import { formatPrice, getProductBySlug, getProducts, getRelatedProducts, getSiteUrl } from '@/lib/products'
@@ -60,53 +60,45 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
-      <nav aria-label="Breadcrumb" className="mb-8 text-xs font-medium uppercase tracking-wider text-zinc-400">
+      <nav aria-label="Breadcrumb" className="mb-8 text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)]">
         <ol className="flex items-center gap-2">
-          <li><Link href="/" className="hover:text-white">Trang chủ</Link></li>
-          <li aria-hidden className="text-zinc-600">/</li>
-          <li><Link href={`/collections?c=${product.category}`} className="capitalize hover:text-white">{product.category}</Link></li>
-          <li aria-hidden className="text-zinc-600">/</li>
-          <li aria-current="page" className="text-white">{product.name}</li>
+          <li><Link href="/" className="hover:text-[var(--text-primary)]">Trang chủ</Link></li>
+          <li aria-hidden className="text-[var(--text-muted)]">/</li>
+          <li><Link href={`/collections?c=${product.category}`} className="capitalize hover:text-[var(--text-primary)]">{product.category}</Link></li>
+          <li aria-hidden className="text-[var(--text-muted)]">/</li>
+          <li aria-current="page" className="text-[var(--text-primary)]">{product.name}</li>
         </ol>
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
-        <div className="product-stage relative aspect-square overflow-hidden rounded-sm border border-white/10">
-          <Image
-            src={product.image || '/placeholder.svg'}
-            alt={product.name}
-            fill
-            priority
-            sizes="(min-width: 1024px) 55vw, 100vw"
-            className="object-cover"
-          />
-        </div>
+        {/* Ảnh sản phẩm với Zoom Lens + Lightbox toàn màn hình */}
+        <ProductZoom src={product.image} alt={product.name} />
 
         <div className="lg:sticky lg:top-28 lg:self-start">
           {product.badge && (
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">{product.badge}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">{product.badge}</p>
           )}
-          <h1 className="mt-2 font-display text-3xl font-medium leading-tight tracking-wide text-white md:text-4xl">{product.name}</h1>
-          <p className="mt-4 text-2xl font-bold tabular-nums text-white">
+          <h1 className="mt-2 font-display text-3xl font-medium leading-tight tracking-wide text-[var(--text-primary)] md:text-4xl">{product.name}</h1>
+          <p className="mt-4 text-2xl font-bold tabular-nums text-[var(--text-primary)]">
             {formatPrice(product.price)}
             {product.compareAtPrice && (
-              <s className="ml-3 text-base font-normal text-zinc-500">{formatPrice(product.compareAtPrice)}</s>
+              <s className="ml-3 text-base font-normal text-[var(--text-muted)]">{formatPrice(product.compareAtPrice)}</s>
             )}
           </p>
-          <p className="mt-6 text-base leading-relaxed text-zinc-300">{product.description}</p>
+          <p className="mt-6 text-base leading-relaxed text-[var(--text-secondary)]">{product.description}</p>
           <ProductPurchase product={product} />
-          <dl className="mt-10 divide-y divide-zinc-800 border-y border-zinc-800 text-sm">
+          <dl className="mt-10 divide-y divide-[var(--border-subtle)] border-y border-[var(--border-subtle)] text-sm">
             <div className="flex justify-between py-4">
-              <dt className="text-zinc-400">Chất liệu chế tác</dt>
-              <dd className="font-medium text-white">{product.material}</dd>
+              <dt className="text-[var(--text-secondary)]">Chất liệu chế tác</dt>
+              <dd className="font-medium text-[var(--text-primary)]">{product.material}</dd>
             </div>
             <div className="flex justify-between py-4">
-              <dt className="text-zinc-400">Chính sách bảo hành</dt>
-              <dd className="font-medium text-white">Làm sáng &amp; đánh bóng trọn đời</dd>
+              <dt className="text-[var(--text-secondary)]">Chính sách bảo hành</dt>
+              <dd className="font-medium text-[var(--text-primary)]">Làm sáng &amp; đánh bóng trọn đời</dd>
             </div>
             <div className="flex justify-between py-4">
-              <dt className="text-zinc-400">Thời gian giao nhận</dt>
-              <dd className="font-medium text-white">2–4 ngày, kiểm tra trước khi nhận</dd>
+              <dt className="text-[var(--text-secondary)]">Thời gian giao nhận</dt>
+              <dd className="font-medium text-[var(--text-primary)]">2–4 ngày, kiểm tra trước khi nhận</dd>
             </div>
           </dl>
         </div>
@@ -115,7 +107,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {related.length > 0 && (
         <section className="mt-24">
           <Reveal>
-            <h2 className="mb-8 font-display text-2xl font-medium tracking-wider text-white md:text-3xl">Gợi ý dành cho bạn</h2>
+            <h2 className="mb-8 font-display text-2xl font-medium tracking-wider text-[var(--text-primary)] md:text-3xl">Gợi ý dành cho bạn</h2>
           </Reveal>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {related.map((p, i) => (

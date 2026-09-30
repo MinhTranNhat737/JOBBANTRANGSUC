@@ -1,20 +1,30 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { Reveal } from '@/components/site/reveal'
-
-const TILES = [
-  { label: 'Mới nhất', href: '/collections', image: '/images/ed-new.png', alt: 'Trang sức mới' },
-  { label: 'Khuyên tai', href: '/collections?c=earrings', image: '/images/ed-earrings.png', alt: 'Khuyên tai bạc' },
-  { label: 'Nhẫn bạc', href: '/collections?c=rings', image: '/images/p-ring-signet.png', alt: 'Nhẫn bạc' },
-  { label: 'Mặt dây', href: '/collections?c=pendants', image: '/images/p-pendant-ruby.png', alt: 'Mặt dây bạc' },
-  { label: 'Vòng tay', href: '/collections?c=bracelets', image: '/images/ed-bracelet.png', alt: 'Vòng tay bạc' },
-  { label: 'Tất cả', href: '/collections', image: '/images/ed-all.png', alt: 'Tất cả tác phẩm' },
-]
+import { TRANSLATIONS, useLanguage } from '@/lib/i18n'
 
 export function EditorialGrid() {
+  const { lang } = useLanguage()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const t = TRANSLATIONS[mounted ? lang : 'vi'].home.tiles
+
+  const tiles = [
+    { label: t.newIn, href: '/collections', image: '/images/ed-new.png', alt: t.newIn },
+    { label: t.earrings, href: '/collections?c=earrings', image: '/images/ed-earrings.png', alt: t.earrings },
+    { label: t.rings, href: '/collections?c=rings', image: '/images/p-ring-signet.png', alt: t.rings },
+    { label: t.pendants, href: '/collections?c=pendants', image: '/images/p-pendant-ruby.png', alt: t.pendants },
+    { label: t.bracelets, href: '/collections?c=bracelets', image: '/images/ed-bracelet.png', alt: t.bracelets },
+    { label: t.all, href: '/collections', image: '/images/ed-all.png', alt: t.all },
+  ]
+
   return (
     <section aria-label="Mua theo bộ sưu tập" className="grid grid-cols-1 sm:grid-cols-2">
-      {TILES.map((tile, i) => (
+      {tiles.map((tile, i) => (
         <Reveal key={tile.label} delay={(i % 2) * 0.08}>
           <Link href={tile.href} className="group relative block aspect-square overflow-hidden border border-white/5 bg-[#121215]">
             <Image

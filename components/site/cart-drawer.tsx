@@ -2,15 +2,21 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Minus, Plus, X } from 'lucide-react'
 import { selectCartTotal, useShop } from '@/lib/store'
 import { formatPrice } from '@/lib/products'
+import { TRANSLATIONS, useLanguage } from '@/lib/i18n'
 
 export function CartDrawer() {
   const { cart, isCartOpen, setCartOpen, updateQuantity, removeFromCart } = useShop()
   const total = useShop(selectCartTotal)
+  const { lang } = useLanguage()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const t = TRANSLATIONS[mounted ? lang : 'vi'].cart
 
   useEffect(() => {
     if (!isCartOpen) return
@@ -46,7 +52,7 @@ export function CartDrawer() {
             transition={{ type: 'spring', damping: 30, stiffness: 280 }}
           >
             <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-5">
-              <h2 className="font-display text-lg font-semibold tracking-wider text-white">Giỏ hàng của bạn</h2>
+              <h2 className="font-display text-lg font-semibold tracking-wider text-white">{t.title}</h2>
               <button type="button" onClick={() => setCartOpen(false)} aria-label="Đóng giỏ hàng" className="p-1 text-zinc-400 hover:text-white">
                 <X className="size-5" />
               </button>
@@ -54,13 +60,13 @@ export function CartDrawer() {
 
             {cart.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-                <p className="text-base text-zinc-400">Giỏ hàng của bạn hiện đang trống.</p>
+                <p className="text-base text-zinc-400">{t.empty}</p>
                 <Link
                   href="/collections"
                   onClick={() => setCartOpen(false)}
                   className="rounded-sm border border-white bg-white px-6 py-3 text-xs font-bold uppercase tracking-[0.15em] text-black transition-colors hover:bg-zinc-200"
                 >
-                  Khám phá tác phẩm
+                  {t.continue}
                 </Link>
               </div>
             ) : (
@@ -89,7 +95,7 @@ export function CartDrawer() {
                             <X className="size-4" />
                           </button>
                         </div>
-                        {item.size && <p className="mt-1 text-xs text-zinc-400">Kích thước: {item.size}</p>}
+                        {item.size && <p className="mt-1 text-xs text-zinc-400">{t.size}: {item.size}</p>}
                         <div className="mt-auto flex items-center justify-between pt-2">
                           <div className="flex items-center rounded-sm border border-zinc-700 bg-zinc-900">
                             <button
@@ -118,16 +124,17 @@ export function CartDrawer() {
                 </ul>
                 <div className="border-t border-zinc-800 px-6 py-6">
                   <div className="flex justify-between text-base font-medium">
-                    <span className="text-zinc-300">Tạm tính</span>
+                    <span className="text-zinc-300">{t.subtotal}</span>
                     <span className="font-bold tabular-nums text-white">{formatPrice(total)}</span>
                   </div>
-                  <p className="mt-2 text-xs text-zinc-400">Đã bao gồm VAT. Miễn phí vận chuyển toàn quốc.</p>
-                  <button
-                    type="button"
-                    className="mt-5 w-full rounded-sm bg-white py-4 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-200"
+                  <p className="mt-2 text-xs text-zinc-400">{t.shippingNote}</p>
+                  <Link
+                    href="/checkout"
+                    onClick={() => setCartOpen(false)}
+                    className="mt-5 flex w-full items-center justify-center rounded-sm bg-white py-4 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-200"
                   >
-                    Tiến hành thanh toán
-                  </button>
+                    {t.checkout}
+                  </Link>
                 </div>
               </>
             )}

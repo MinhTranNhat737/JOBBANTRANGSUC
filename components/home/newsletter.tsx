@@ -1,11 +1,17 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { TRANSLATIONS, useLanguage } from '@/lib/i18n'
 
 export function Newsletter() {
   const [submitted, setSubmitted] = useState(false)
+  const { lang } = useLanguage()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const t = TRANSLATIONS[mounted ? lang : 'vi'].newsletter
 
   return (
     <section className="relative overflow-hidden">
@@ -21,14 +27,14 @@ export function Newsletter() {
       </div>
       <div className="relative mx-auto flex max-w-xl flex-col items-center px-4 py-16 text-center md:py-24">
         <h2 className="font-calligraphy text-balance text-3xl font-medium tracking-wide text-white">
-          Nhận bản tin
+          {t.title}
         </h2>
         <p className="mt-2 text-sm text-zinc-300">
-          Cập nhật tác phẩm mới và ưu đãi độc quyền.
+          {t.subtitle}
         </p>
         {submitted ? (
           <p className="mt-6 rounded-sm bg-white/10 px-6 py-2.5 text-sm font-medium text-white" role="status">
-            ✓ Đã đăng ký thành công.
+            ✓ {t.success}
           </p>
         ) : (
           <form
@@ -39,20 +45,20 @@ export function Newsletter() {
             }}
           >
             <label htmlFor="newsletter-email" className="sr-only">
-              Địa chỉ email
+              {t.placeholder}
             </label>
             <input
               id="newsletter-email"
               type="email"
               required
-              placeholder="Nhập email..."
+              placeholder={t.placeholder}
               className="flex-1 rounded-sm border border-zinc-700 bg-zinc-900/90 px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-white focus:outline-none"
             />
             <button
               type="submit"
               className="inline-flex items-center justify-center gap-2 rounded-sm bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition-colors hover:bg-zinc-200"
             >
-              Đăng ký
+              {t.btn}
               <ArrowRight className="size-4" />
             </button>
           </form>

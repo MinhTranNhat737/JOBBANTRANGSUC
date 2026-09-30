@@ -1,10 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Be_Vietnam_Pro, Cinzel, Cormorant_Upright } from 'next/font/google'
-import { AnnouncementBar } from '@/components/site/announcement-bar'
-import { SiteHeader } from '@/components/site/site-header'
-import { SiteFooter } from '@/components/site/site-footer'
-import { CartDrawer } from '@/components/site/cart-drawer'
 import { getSiteUrl } from '@/lib/products'
 import './globals.css'
 
@@ -45,7 +41,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
+  colorScheme: 'dark light',
   themeColor: '#0f0f0f',
 }
 
@@ -55,16 +51,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi" className={`${beVietnamPro.variable} ${cormorantUpright.variable} ${cinzel.variable}`}>
-      <body className="antialiased">
-        <AnnouncementBar />
-        <SiteHeader />
+    <html lang="vi" data-theme="dark" suppressHydrationWarning className={`${beVietnamPro.variable} ${cormorantUpright.variable} ${cinzel.variable}`}>
+      <body className="antialiased bg-[var(--surface-primary)] text-[var(--text-primary)] transition-colors duration-300">
         {children}
-        <SiteFooter />
-        <CartDrawer />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
 }
-

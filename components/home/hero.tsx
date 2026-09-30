@@ -2,50 +2,56 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[620px] items-center justify-center overflow-hidden border-b border-white/10 md:min-h-[780px]">
-      {/* Background with black & white monochrome tone */}
+    <section className="relative flex min-h-[75vh] sm:min-h-[85vh] items-center justify-center overflow-hidden border-b border-[var(--border-subtle)]">
+      {/* Background with deep obsidian tone */}
       <div className="absolute inset-0">
         <Image
           src="/images/hero.png"
-          alt="Hình ảnh nghệ thuật trang sức bạc chế tác"
+          alt="Trang sức bạc thủ công LEGEND"
           fill
           priority
           sizes="100vw"
           className="object-cover brightness-50 contrast-125 grayscale"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/70 to-[#0c0c0e]/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)]/70 to-black/40" />
       </div>
 
-      {/* Static dignified Trống Đồng watermark - no rotation */}
+      {/* Subtle Trống Đồng watermark */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[650px] -translate-x-1/2 -translate-y-1/2 opacity-15 mix-blend-screen md:size-[850px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 size-[600px] -translate-x-1/2 -translate-y-1/2 opacity-10 mix-blend-screen md:size-[800px]"
       >
-        <Image src="/images/trong-dong.png" alt="" fill sizes="850px" className="object-contain" />
+        <Image src="/images/trong-dong.png" alt="" fill sizes="800px" className="object-contain" />
       </div>
 
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center md:py-28">
-        <h1 className="font-calligraphy text-balance text-4xl font-medium leading-[1.2] text-white sm:text-5xl md:text-6xl">
-          Rèn từ huyền thoại
+      {/* Spacious, Minimalist Hero Content */}
+      <div className="relative z-10 mx-auto max-w-4xl px-6 py-20 text-center">
+        <span className="inline-block text-xs uppercase tracking-[0.35em] text-zinc-400 font-medium mb-4">
+          Bạc 925 Chế tác Thủ công
+        </span>
+
+        <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-[0.15em] text-[var(--text-primary)] uppercase leading-tight sm:leading-tight">
+          LEGEND
         </h1>
 
-        <p className="mt-4 text-balance text-base font-normal text-zinc-300 md:text-lg">
-          Trang sức bạc 925 chế tác thủ công tinh xảo.
+        <p className="mt-4 text-sm sm:text-base tracking-[0.2em] uppercase text-[var(--text-secondary)] font-light max-w-lg mx-auto">
+          Khí chất uy nghiêm • Biểu tượng hộ mệnh
         </p>
 
-        <div className="mt-8">
+        <div className="mt-10 flex items-center justify-center gap-4">
           <Link
             href="/collections"
-            className="inline-flex items-center justify-center bg-white px-9 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-200 md:px-10 md:py-4 md:text-sm"
+            className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.25em] text-white backdrop-blur-md transition-all hover:bg-white hover:text-black active:scale-95"
           >
-            Khám phá bộ sưu tập
+            <span>Khám phá bộ sưu tập</span>
+            <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
       </div>
     </section>
   )
 }
-

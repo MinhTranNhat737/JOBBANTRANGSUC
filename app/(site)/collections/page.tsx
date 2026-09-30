@@ -16,15 +16,7 @@ export default async function CollectionsPage() {
   const products = await getProducts()
 
   return (
-    <main className="mx-auto max-w-screen-2xl px-4 pb-24 pt-12 md:px-8">
-      <header className="mb-6">
-        <h1 className="font-display text-3xl font-semibold tracking-wider text-white md:text-4xl">
-          Cửa Hàng
-        </h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Trang sức bạc 925 chế tác thủ công.
-        </p>
-      </header>
+    <main className="pb-24 pt-2">
       <Suspense fallback={<div className="h-96" />}>
         <Catalog products={products} />
       </Suspense>

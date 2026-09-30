@@ -3,19 +3,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
 import { useShop } from '@/lib/store'
 import { formatPrice, type Product } from '@/lib/products'
 import { cn } from '@/lib/utils'
-
-const EASE = [0.22, 1, 0.36, 1] as const
-const CORNERS = [
-  'left-2 top-2 border-l border-t',
-  'right-2 top-2 border-r border-t',
-  'left-2 bottom-2 border-l border-b',
-  'right-2 bottom-2 border-r border-b',
-]
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const [mounted, setMounted] = useState(false)
@@ -26,9 +17,9 @@ export function ProductCard({ product, priority = false }: { product: Product; p
   useEffect(() => setMounted(true), [])
 
   return (
-    <article className="group relative rounded-sm border border-white/10 bg-[#141417] p-3 transition-colors hover:border-zinc-500">
+    <article className="group relative overflow-hidden rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-colors">
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="product-stage relative aspect-[4/5] overflow-hidden rounded-sm">
+        <div className="relative aspect-[4/5] overflow-hidden">
           <Image
             src={product.image || '/placeholder.svg'}
             alt={product.name}
@@ -36,49 +27,55 @@ export function ProductCard({ product, priority = false }: { product: Product; p
             priority={priority}
             sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw"
             className={cn(
-              'object-cover transition-transform duration-300 group-hover:scale-105',
+              'object-cover transition-all duration-500 group-hover:scale-[1.04]',
               soldOut && 'opacity-40 grayscale',
             )}
           />
 
+          {/* Badge */}
           {(product.badge || soldOut) && (
             <span
               className={cn(
-                'absolute left-2.5 top-2.5 rounded-sm px-2.5 py-1 text-[11px] font-semibold tracking-wider',
+                'absolute left-3 top-3 z-10 rounded-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
                 soldOut
-                  ? 'bg-black/80 text-zinc-400 backdrop-blur'
-                  : 'bg-white text-black shadow-sm',
+                  ? 'bg-black/70 text-zinc-400 backdrop-blur-sm'
+                  : 'bg-[var(--badge-bg)] text-[var(--badge-text)] shadow-sm',
               )}
             >
               {soldOut ? 'Hết hàng' : product.badge}
             </span>
           )}
+
+          {/* Hover overlay – name + price fading up from bottom */}
+          <div className="absolute inset-0 z-10 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100">
+            <div className="translate-y-3 px-4 pb-4 transition-transform duration-400 group-hover:translate-y-0 md:px-5 md:pb-5">
+              <h3 className="line-clamp-1 text-sm font-semibold tracking-wide text-white md:text-[15px]">
+                {product.name}
+              </h3>
+              <p className="mt-1.5 flex items-baseline gap-2 text-sm font-medium tabular-nums text-zinc-200">
+                <span>
+                  {product.sizes ? 'Từ ' : ''}
+                  {formatPrice(product.price)}
+                </span>
+                {product.compareAtPrice && (
+                  <s className="text-xs text-zinc-500">{formatPrice(product.compareAtPrice)}</s>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
       </Link>
-      <div className="mt-3.5 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h3 className="line-clamp-1 text-sm font-semibold text-white transition-colors group-hover:text-zinc-300">
-            <Link href={`/products/${product.slug}`}>{product.name}</Link>
-          </h3>
-          <p className="mt-1 text-sm font-medium tabular-nums text-zinc-300">
-            {product.sizes ? 'Từ ' : ''}
-            {formatPrice(product.price)}
-            {product.compareAtPrice && (
-              <s className="ml-2 text-xs text-zinc-500">{formatPrice(product.compareAtPrice)}</s>
-            )}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => toggleWishlist(product.slug)}
-          aria-pressed={mounted && wished}
-          aria-label={mounted && wished ? `Bỏ ${product.name} khỏi yêu thích` : `Thêm ${product.name} vào yêu thích`}
-          className="shrink-0 p-1.5 text-zinc-400 transition-colors hover:text-white"
-        >
-          <Heart className={cn('size-4', mounted && wished && 'fill-white text-white')} />
-        </button>
-      </div>
+
+      {/* Wishlist heart — always visible top-right */}
+      <button
+        type="button"
+        onClick={() => toggleWishlist(product.slug)}
+        aria-pressed={mounted && wished}
+        aria-label={mounted && wished ? `Bỏ ${product.name} khỏi yêu thích` : `Thêm ${product.name} vào yêu thích`}
+        className="absolute right-3 top-3 z-20 flex size-8 items-center justify-center rounded-full bg-black/40 text-white/70 opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-black/60 hover:text-white group-hover:opacity-100"
+      >
+        <Heart className={cn('size-4', mounted && wished && 'fill-white text-white')} />
+      </button>
     </article>
   )
 }
-

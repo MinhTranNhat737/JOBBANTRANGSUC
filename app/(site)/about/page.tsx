@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Reveal } from '@/components/site/reveal'
+import { FounderStory } from '@/components/about/founder-story'
 
 export const metadata: Metadata = {
   title: 'About Legend',
@@ -27,6 +28,7 @@ export default function AboutPage() {
           </p>
         </div>
       </section>
+
       <div className="relative aspect-[21/9] w-full overflow-hidden border-y border-white/10">
         <Image
           src="/images/ed-new.png"
@@ -36,6 +38,9 @@ export default function AboutPage() {
           className="object-cover grayscale brightness-90"
         />
       </div>
+
+      {/* Founder Story Section */}
+      <FounderStory />
     </main>
   )
 }

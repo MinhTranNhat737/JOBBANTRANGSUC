@@ -25,6 +25,7 @@ type ShopState = {
   removeFromCart: (slug: string, size?: string) => void
   toggleWishlist: (slug: string) => void
   setCartOpen: (open: boolean) => void
+  clearCart: () => void
 }
 
 export const useShop = create<ShopState>()(
@@ -61,6 +62,7 @@ export const useShop = create<ShopState>()(
         set((state) => ({
           cart: state.cart.filter((c) => lineKey(c.slug, c.size) !== lineKey(slug, size)),
         })),
+      clearCart: () => set({ cart: [] }),
       toggleWishlist: (slug) =>
         set((state) => ({
           wishlist: state.wishlist.includes(slug)

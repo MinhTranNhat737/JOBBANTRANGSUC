@@ -22,7 +22,7 @@ export function ProductPurchase({ product }: { product: Product }) {
     <div className="mt-8 space-y-6">
       {product.sizes && (
         <fieldset>
-          <legend className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
+          <legend className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
             Kích thước (Size)
           </legend>
           <div className="mt-3 flex flex-wrap gap-2.5">
@@ -35,8 +35,8 @@ export function ProductPurchase({ product }: { product: Product }) {
                 className={cn(
                   'min-w-12 rounded-sm border px-4 py-2.5 text-sm font-semibold transition-colors',
                   size === s
-                    ? 'border-white bg-white text-black'
-                    : 'border-zinc-700 bg-zinc-900/60 text-zinc-300 hover:border-white hover:text-white',
+                    ? 'border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--surface-primary)]'
+                    : 'border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]',
                 )}
               >
                 {s}
@@ -46,7 +46,7 @@ export function ProductPurchase({ product }: { product: Product }) {
         </fieldset>
       )}
 
-      <p className="text-sm font-medium text-zinc-300" aria-live="polite">
+      <p className="text-sm font-medium text-[var(--text-secondary)]" aria-live="polite">
         {soldOut
           ? 'Tạm hết hàng'
           : product.stock <= 5
@@ -55,22 +55,22 @@ export function ProductPurchase({ product }: { product: Product }) {
       </p>
 
       <div className="flex gap-3">
-        <div className="flex items-center rounded-sm border border-zinc-700 bg-zinc-900/80">
+        <div className="flex items-center rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)]">
           <button
             type="button"
-            className="p-3.5 text-zinc-300 hover:text-white disabled:opacity-30"
+            className="p-3.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30"
             aria-label="Giảm số lượng"
             disabled={qty <= 1 || soldOut}
             onClick={() => setQty((q) => Math.max(1, q - 1))}
           >
             <Minus className="size-4" />
           </button>
-          <span className="w-10 text-center text-sm font-semibold tabular-nums text-white" aria-label="Số lượng">
+          <span className="w-10 text-center text-sm font-semibold tabular-nums text-[var(--text-primary)]" aria-label="Số lượng">
             {qty}
           </span>
           <button
             type="button"
-            className="p-3.5 text-zinc-300 hover:text-white disabled:opacity-30"
+            className="p-3.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30"
             aria-label="Tăng số lượng"
             disabled={qty >= maxQty || soldOut}
             onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
@@ -84,7 +84,7 @@ export function ProductPurchase({ product }: { product: Product }) {
           onClick={() =>
             addToCart({ slug: product.slug, name: product.name, price: product.price, image: product.image, size }, qty)
           }
-          className="flex-1 rounded-sm bg-white py-4 text-xs font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40 md:text-sm"
+          className="flex-1 rounded-sm bg-[var(--text-primary)] py-4 text-xs font-bold uppercase tracking-[0.2em] text-[var(--surface-primary)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 md:text-sm"
         >
           {soldOut ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
         </button>
@@ -93,9 +93,9 @@ export function ProductPurchase({ product }: { product: Product }) {
           onClick={() => toggleWishlist(product.slug)}
           aria-pressed={mounted && wished}
           aria-label="Yêu thích"
-          className="rounded-sm border border-zinc-700 bg-zinc-900/80 px-4 transition-colors hover:border-white"
+          className="rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 transition-colors hover:border-[var(--text-primary)]"
         >
-          <Heart className={cn('size-5', mounted && wished ? 'fill-white text-white' : 'text-zinc-300')} />
+          <Heart className={cn('size-5', mounted && wished ? 'fill-[var(--text-primary)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)]')} />
         </button>
       </div>
     </div>

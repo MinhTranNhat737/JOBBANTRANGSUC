@@ -1,0 +1,10 @@
+{
+  "telegramBotToken": "",
+  "telegramChatId": "",
+  "resendApiKey": "",
+  "adminEmail": "admin@legend.vn",
+  "sepayAccountNumber": "090123456789",
+  "sepayBankCode": "MBBank",
+  "sepayAccountName": "CONG TY TNHH TRANG SUC LEGEND",
+  "momoPartnerCode": "MOMO"
+}
