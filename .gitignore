@@ -12,5 +12,5 @@ fe/.next/
 fe/.env*.local
 fe/tsconfig.tsbuildinfo
 
-be/node_modules/
-be/.env
+# Backend (tracked in separate repository: JOBBANTRANGSUC-BE)
+be/
