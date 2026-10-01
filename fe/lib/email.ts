@@ -99,9 +99,8 @@ export function generateOrderInvoiceHtml(order: Order, isAdmin = false): string 
                 <tr>
                   <td>
                     <div style="font-size:11px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px;">THÔNG TIN NGƯỜI NHẬN</div>
-                    <div style="font-size:14px;font-weight:600;color:#ffffff;">${order.customerName}</div>
-                    <div style="font-size:13px;color:#d4d4d8;margin-top:4px;">📞 ${order.customerPhone} | 📧 ${order.customerEmail}</div>
-                    <div style="font-size:13px;color:#a1a1aa;margin-top:4px;">📍 ${order.customerAddress}</div>
+                    <div style="font-size:12px;color:#a1a1aa;margin-top:4px;"><span style="color:#71717a;font-family:monospace;">TEL:</span> <span style="color:#e4e4e7;">${order.customerPhone}</span> &nbsp;|&nbsp; <span style="color:#71717a;font-family:monospace;">EMAIL:</span> <span style="color:#e4e4e7;">${order.customerEmail}</span></div>
+                    <div style="font-size:12px;color:#a1a1aa;margin-top:4px;"><span style="color:#71717a;font-family:monospace;">ĐỊA CHỈ:</span> <span style="color:#e4e4e7;">${order.customerAddress}</span></div>
                     ${order.notes ? `<div style="font-size:12px;color:#71717a;margin-top:6px;font-style:italic;">Ghi chú: "${order.notes}"</div>` : ''}
                   </td>
                 </tr>

@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateOrderInvoiceHtml } from '@/lib/email'
-import { MOCK_ORDERS, type Order } from '@/lib/admin-data'
+import { getAllServerOrders } from '@/lib/server-order-repo'
+import type { Order } from '@/lib/admin-data'
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
   const orderId = searchParams.get('orderId') || ''
   const isAdmin = searchParams.get('admin') === 'true'
 
-  // Look for mock order or fallback
-  let order: Order | undefined = MOCK_ORDERS.find(
+  // Look for order from server orders
+  const serverOrders = getAllServerOrders()
+  let order: Order | undefined = serverOrders.find(
     (o) => o.id === orderId || o.id.replace('#', '') === orderId.replace('#', ''),
   )
 

@@ -1,26 +1,47 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { DollarSign, ShoppingCart, Users, Package } from 'lucide-react'
 import { StatCard } from '@/components/admin/stat-card'
 import { ChartRevenue } from '@/components/admin/chart-revenue'
 import { ChartCategory } from '@/components/admin/chart-category'
 import { RecentOrders } from '@/components/admin/recent-orders'
 import { LowStockAlert } from '@/components/admin/low-stock-alert'
-import { getAdminStats, formatCompactPrice, MOCK_CUSTOMERS } from '@/lib/admin-data'
+import { getAdminStats, formatCompactPrice } from '@/lib/admin-data'
 import { useOrderStore } from '@/lib/order-store'
-
-// Import product data for low stock
-const LOW_STOCK_PRODUCTS = [
-  { name: 'Crest Signet Heavy', stock: 2 },
-  { name: 'Red Dragon Tag Pendant', stock: 3 },
-  { name: 'Fleur Link Bracelet', stock: 4 },
-  { name: 'Vermilion Bird Ring', stock: 5 },
-]
 
 export default function AdminDashboard() {
   const { orders } = useOrderStore()
   const baseStats = getAdminStats()
+  const [outOfStockProducts, setOutOfStockProducts] = useState<{ name: string; stock: number }[]>([])
+  const [customerCount, setCustomerCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/customers', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data.total === 'number') {
+          setCustomerCount(data.total)
+        } else if (data && Array.isArray(data.customers)) {
+          setCustomerCount(data.customers.length)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/inventory', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.products && Array.isArray(data.products)) {
+          const outOfStock = data.products
+            .filter((p: any) => parseInt(p.quantity ?? p.stock ?? 0) <= 0)
+            .map((p: any) => ({ name: p.name, stock: 0 }))
+          setOutOfStockProducts(outOfStock)
+        }
+      })
+      .catch((err) => console.error('Dashboard inventory fetch error:', err))
+  }, [])
 
   const dynamicStats = useMemo(() => {
     const totalRev = orders
@@ -49,22 +70,22 @@ export default function AdminDashboard() {
           label="Doanh thu"
           value={formatCompactPrice(dynamicStats.revenue)}
           icon={<DollarSign size={20} />}
-          change={baseStats.revenue.change}
-          trend="up"
+          change={0}
+          trend="neutral"
         />
         <StatCard
           label="Đơn hàng"
           value={String(dynamicStats.ordersCount)}
           icon={<ShoppingCart size={20} />}
-          change={baseStats.orders.change}
-          trend="up"
+          change={0}
+          trend="neutral"
         />
         <StatCard
           label="Khách hàng"
-          value={String(MOCK_CUSTOMERS.length)}
+          value={String(customerCount)}
           icon={<Users size={20} />}
-          change={baseStats.customers.change}
-          trend="up"
+          change={0}
+          trend="neutral"
         />
         <StatCard
           label="Chờ xử lý"
@@ -85,7 +106,7 @@ export default function AdminDashboard() {
       {/* Bottom section */}
       <div className="dashboard-bottom">
         <RecentOrders />
-        <LowStockAlert products={LOW_STOCK_PRODUCTS} />
+        <LowStockAlert products={outOfStockProducts} />
       </div>
     </>
   )

@@ -3,7 +3,7 @@ import { getTelegramLogs, sendTelegramMessage, recordTelegramLog } from '@/lib/t
 import { getInvoiceLogs, sendInvoiceEmail } from '@/lib/email'
 import { getDynamicSettings, saveDynamicSettings } from '@/lib/payment-settings-store'
 import { PAYMENT_CONFIG } from '@/lib/payment-config'
-import { MOCK_ORDERS } from '@/lib/admin-data'
+import { getAllServerOrders } from '@/lib/server-order-repo'
 
 export async function GET() {
   const telegramLogs = getTelegramLogs()
@@ -85,7 +85,29 @@ Trạng thái: Hoạt động bình thường.
 
     // 3. Thử nghiệm gửi Email
     if (action === 'test_email') {
-      const sampleOrder = MOCK_ORDERS[0]
+      const orders = getAllServerOrders()
+      const sampleOrder = orders[0] || {
+        id: '#TEST-SAMPLE',
+        customerName: 'Khách hàng Thử Nghiệm',
+        customerEmail: targetEmail || 'admin@legend.vn',
+        customerPhone: '0901 234 567',
+        customerAddress: 'Việt Nam',
+        items: [
+          {
+            slug: 'fine-jewelry-sample',
+            name: 'Mẫu Trang Sức Kiểm Thử',
+            image: '/images/p-ring-sapphire.png',
+            quantity: 1,
+            price: 5000000,
+          },
+        ],
+        total: 5000000,
+        shippingFee: 0,
+        status: 'confirmed' as const,
+        paymentMethod: 'Chuyển khoản SePay',
+        createdAt: new Date().toISOString(),
+        timeline: [],
+      }
       const dynamic = getDynamicSettings()
       const toEmail = targetEmail || dynamic.adminEmail || 'admin@legend.vn'
       const res = await sendInvoiceEmail({

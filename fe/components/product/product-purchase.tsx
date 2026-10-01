@@ -20,7 +20,7 @@ export function ProductPurchase({ product }: { product: Product }) {
 
   return (
     <div className="mt-8 space-y-6">
-      {product.sizes && (
+      {product.sizes && product.sizes.length > 0 && (
         <fieldset>
           <legend className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
             Kích thước (Size)
@@ -49,9 +49,7 @@ export function ProductPurchase({ product }: { product: Product }) {
       <p className="text-sm font-medium text-[var(--text-secondary)]" aria-live="polite">
         {soldOut
           ? 'Tạm hết hàng'
-          : product.stock <= 5
-            ? `Chỉ còn ${product.stock} tác phẩm trong kho`
-            : '✓ Còn hàng, sẵn sàng đóng gói giao ngay'}
+          : '✓ Còn hàng, sẵn sàng đóng gói giao ngay'}
       </p>
 
       <div className="flex gap-3">

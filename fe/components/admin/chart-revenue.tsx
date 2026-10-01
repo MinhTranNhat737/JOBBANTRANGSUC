@@ -1,23 +1,25 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { REVENUE_7D, REVENUE_30D, formatCompactPrice } from '@/lib/admin-data'
+import { computeDailyRevenue, formatCompactPrice } from '@/lib/admin-data'
+import { useOrderStore } from '@/lib/order-store'
 
 const PERIODS = [
-  { key: '7d', label: '7 ngày', data: REVENUE_7D },
-  { key: '30d', label: '30 ngày', data: REVENUE_30D },
+  { key: '7d', label: '7 ngày' },
+  { key: '30d', label: '30 ngày' },
 ] as const
 
 export function ChartRevenue() {
   const [period, setPeriod] = useState<'7d' | '30d'>('7d')
+  const { orders } = useOrderStore()
 
   const currentData = useMemo(() => {
-    return period === '7d' ? REVENUE_7D : REVENUE_30D
-  }, [period])
+    return computeDailyRevenue(orders, period === '7d' ? 7 : 30)
+  }, [orders, period])
 
-  const maxValue = Math.max(...currentData.map(d => d.value))
-  const minValue = Math.min(...currentData.map(d => d.value))
   const totalRevenue = currentData.reduce((s, d) => s + d.value, 0)
+  const maxValue = Math.max(...currentData.map((d) => d.value), 1000000)
+  const minValue = Math.min(...currentData.map((d) => d.value), 0)
 
   // Build SVG path
   const width = 600
@@ -27,7 +29,10 @@ export function ChartRevenue() {
 
   const points = currentData.map((d, i) => {
     const x = padX + (i / (currentData.length - 1)) * (width - padX * 2)
-    const y = padY + (1 - (d.value - minValue * 0.8) / (maxValue - minValue * 0.8)) * (height - padY * 2)
+    const y =
+      totalRevenue === 0
+        ? height - padY
+        : padY + (1 - (d.value - minValue * 0.8) / (maxValue - minValue * 0.8)) * (height - padY * 2)
     return { x, y, ...d }
   })
 

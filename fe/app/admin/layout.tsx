@@ -7,18 +7,18 @@ import { AdminLogin } from '@/components/admin/admin-login'
 import './admin.css'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, sidebarCollapsed } = useAdmin()
+  const { isAuthenticated, sidebarCollapsed, adminTheme } = useAdmin()
 
   if (!isAuthenticated) {
     return (
-      <div data-admin>
+      <div data-admin data-admin-theme={adminTheme || 'dark'} className={adminTheme || 'dark'}>
         <AdminLogin />
       </div>
     )
   }
 
   return (
-    <div data-admin>
+    <div data-admin data-admin-theme={adminTheme || 'dark'} className={adminTheme || 'dark'}>
       <AdminSidebar />
       <main className={`admin-main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <AdminHeader />

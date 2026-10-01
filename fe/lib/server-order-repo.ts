@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { MOCK_ORDERS, type Order, type OrderStatus } from './admin-data'
+import type { Order, OrderStatus } from './admin-data'
 
 const DATA_DIR = path.join(process.cwd(), 'data')
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json')
@@ -10,7 +10,7 @@ function ensureDataFile() {
     fs.mkdirSync(DATA_DIR, { recursive: true })
   }
   if (!fs.existsSync(ORDERS_FILE)) {
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(MOCK_ORDERS, null, 2), 'utf-8')
+    fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2), 'utf-8')
   }
 }
 
@@ -22,10 +22,10 @@ export function getAllServerOrders(): Order[] {
     if (Array.isArray(parsed)) {
       return parsed
     }
-    return MOCK_ORDERS
+    return []
   } catch (err) {
     console.error('Error reading server orders:', err)
-    return MOCK_ORDERS
+    return []
   }
 }
 

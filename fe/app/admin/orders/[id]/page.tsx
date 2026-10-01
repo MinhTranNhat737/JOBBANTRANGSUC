@@ -13,6 +13,7 @@ import {
   CreditCard,
   Loader2,
   ExternalLink,
+  Printer,
 } from 'lucide-react'
 import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admin-data'
 import type { OrderStatus } from '@/lib/admin-data'
@@ -27,6 +28,50 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [statusNote, setStatusNote] = useState('')
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
+  const [isDispatching, setIsDispatching] = useState(false)
+
+  const handleDispatchOrder = async () => {
+    if (!order) return
+    setIsDispatching(true)
+    try {
+      const res = await fetch('/api/inventory/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          items: order.items,
+          note: `Xuất kho giao cho đơn hàng ${order.id}`,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        updateOrderStatus(
+          order.id,
+          'shipping',
+          'Đã xuất kho thành công. Sản phẩm đã trừ tồn kho và bắt đầu chuyển giao cho bưu tá vận chuyển.'
+        )
+
+        let outOfStockMsg = ''
+        if (data.dispatchedProducts && Array.isArray(data.dispatchedProducts)) {
+          const outList = data.dispatchedProducts.filter((p: any) => p.isOutOfStock)
+          if (outList.length > 0) {
+            outOfStockMsg = ` (Lưu ý: ${outList.map((p: any) => p.name).join(', ')} đã hết hàng trên web)`
+          }
+        }
+
+        setSuccessMsg(`✓ Đã xuất kho thành công & chuyển đơn sang "Đang giao"!${outOfStockMsg}`)
+      } else {
+        setSuccessMsg(`Lỗi khi xuất kho: ${data.error || 'Vui lòng thử lại'}`)
+      }
+    } catch (err: any) {
+      setSuccessMsg(`Lỗi kết nối khi xuất kho: ${err.message}`)
+    } finally {
+      setIsDispatching(false)
+      setTimeout(() => setSuccessMsg(null), 5000)
+    }
+  }
 
   useEffect(() => {
     fetch('/api/orders')
@@ -148,9 +193,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* Hóa đơn HTML Link */}
+            {/* Hóa đơn PDF Link */}
             <a
-              href={`/api/admin/invoice/preview?orderId=${encodeURIComponent(order.id)}&admin=true`}
+              href={`/invoice?id=${encodeURIComponent(order.id)}&print=1`}
               target="_blank"
               rel="noreferrer"
               style={{
@@ -167,7 +212,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 textDecoration: 'none',
               }}
             >
-              <FileText size={14} /> Xem Hóa đơn HTML <ExternalLink size={12} />
+              <Printer size={14} /> Xuất / In Hóa đơn PDF <ExternalLink size={12} />
             </a>
 
             {/* Bắn lại Telegram / Email */}
@@ -225,100 +270,166 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       )}
 
-      {/* Admin Action Bar: Update Order Status */}
-      <div className="admin-card" style={{ padding: 18, marginBottom: 20 }}>
-        <h3
-          style={{
-            fontSize: 13,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--admin-gold)',
-            marginBottom: 12,
-          }}
-        >
-          Xử lý & Cập nhật trạng thái đơn hàng
-        </h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('confirmed')}
-            disabled={order.status === 'confirmed'}
+      {/* Admin Action Bar: Quy trình xử lý đơn hàng & Kho hàng */}
+      <div className="admin-card" style={{ padding: 20, marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+          <h3
             style={{
-              padding: '8px 14px',
-              borderRadius: 6,
-              background: order.status === 'confirmed' ? 'var(--admin-border)' : 'rgba(59, 130, 246, 0.2)',
-              border: '1px solid rgba(59, 130, 246, 0.4)',
-              color: order.status === 'confirmed' ? 'var(--admin-text-secondary)' : '#60a5fa',
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: order.status === 'confirmed' ? 'not-allowed' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
+              fontSize: 13,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--admin-gold)',
+              margin: 0,
             }}
           >
-            <CheckCircle size={14} /> Xác nhận đơn
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('shipping')}
-            disabled={order.status === 'shipping'}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 6,
-              background: order.status === 'shipping' ? 'var(--admin-border)' : 'rgba(139, 92, 246, 0.2)',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
-              color: order.status === 'shipping' ? 'var(--admin-text-secondary)' : '#c084fc',
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: order.status === 'shipping' ? 'not-allowed' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <Truck size={14} /> Bắt đầu giao hàng
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('delivered')}
-            disabled={order.status === 'delivered'}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 6,
-              background: order.status === 'delivered' ? 'var(--admin-border)' : 'rgba(34, 197, 94, 0.2)',
-              border: '1px solid rgba(34, 197, 94, 0.4)',
-              color: order.status === 'delivered' ? 'var(--admin-text-secondary)' : '#4ade80',
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: order.status === 'delivered' ? 'not-allowed' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <Package size={14} /> Hoàn tất giao hàng
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('cancelled')}
-            disabled={order.status === 'cancelled'}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 6,
-              background: order.status === 'cancelled' ? 'var(--admin-border)' : 'rgba(239, 68, 68, 0.15)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              color: order.status === 'cancelled' ? 'var(--admin-text-secondary)' : '#f87171',
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: order.status === 'cancelled' ? 'not-allowed' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <XCircle size={14} /> Hủy đơn hàng
-          </button>
+            Quy trình Xử lý Đơn hàng &amp; Xuất kho
+          </h3>
+          <span style={{ fontSize: 12, color: 'var(--admin-text-secondary)' }}>
+            Tiến trình: <strong style={{ color: status.color }}>{status.label}</strong>
+          </span>
+        </div>
+
+        {/* Workflow Action Buttons */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+          {/* BƯỚC 1: XÁC NHẬN ĐƠN (Nếu đang chờ xử lý) */}
+          {order.status === 'pending' && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange('confirmed')}
+              style={{
+                padding: '10px 18px',
+                borderRadius: 8,
+                background: 'rgba(59, 130, 246, 0.25)',
+                border: '1px solid #3b82f6',
+                color: '#60a5fa',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+              }}
+            >
+              <CheckCircle size={16} /> 1. Xác nhận đơn hàng
+            </button>
+          )}
+
+          {/* BƯỚC 2: XUẤT KHO (Khi đơn đã xác nhận hoặc cần xuất kho) */}
+          {(order.status === 'confirmed' || order.status === 'pending') && (
+            <button
+              type="button"
+              onClick={handleDispatchOrder}
+              disabled={isDispatching}
+              style={{
+                padding: '10px 18px',
+                borderRadius: 8,
+                background: order.status === 'confirmed' ? 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)' : 'rgba(139, 92, 246, 0.2)',
+                border: order.status === 'confirmed' ? '1px solid #a78bfa' : '1px solid rgba(139, 92, 246, 0.4)',
+                color: '#ffffff',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: isDispatching ? 'wait' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                boxShadow: order.status === 'confirmed' ? '0 4px 16px rgba(124, 58, 237, 0.4)' : 'none',
+              }}
+            >
+              {isDispatching ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Package size={16} />
+              )}
+              <span>2. 📦 Bấm Xuất kho (Trừ tồn kho &amp; Chuyển sang Đang giao)</span>
+            </button>
+          )}
+
+          {/* BƯỚC 3: ĐÃ GIAO HÀNG (Admin tự check với bưu tá / khách rồi bấm hoàn tất) */}
+          {order.status === 'shipping' && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange('delivered')}
+              style={{
+                padding: '10px 20px',
+                borderRadius: 8,
+                background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                border: '1px solid #4ade80',
+                color: '#ffffff',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                boxShadow: '0 4px 16px rgba(22, 163, 74, 0.35)',
+              }}
+            >
+              <CheckCircle size={16} /> 3. ✓ Admin check: Xác nhận ĐÃ GIAO HÀNG
+            </button>
+          )}
+
+          {order.status === 'delivered' && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 16px',
+                borderRadius: 8,
+                background: 'rgba(34, 197, 94, 0.15)',
+                border: '1px solid rgba(34, 197, 94, 0.4)',
+                color: '#4ade80',
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              <CheckCircle size={15} /> Đơn hàng đã hoàn tất giao hàng thành công
+            </div>
+          )}
+
+          {/* Các nút phụ */}
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            <Link
+              href="/admin/inventory"
+              style={{
+                padding: '8px 12px',
+                borderRadius: 6,
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid var(--admin-border)',
+                color: 'var(--admin-text-secondary)',
+                fontSize: 12,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              Xem Kho hàng ↗
+            </Link>
+
+            {order.status !== 'cancelled' && order.status !== 'delivered' && (
+              <button
+                type="button"
+                onClick={() => handleStatusChange('cancelled')}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#f87171',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <XCircle size={13} /> Hủy đơn
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

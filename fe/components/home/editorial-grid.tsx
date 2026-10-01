@@ -14,7 +14,7 @@ export function EditorialGrid() {
   const t = TRANSLATIONS[mounted ? lang : 'vi'].home.tiles
 
   const tiles = [
-    { label: t.newIn, href: '/collections', image: '/images/ed-new.png', alt: t.newIn },
+    { label: t.newIn, href: '/collections?badge=New', image: '/images/ed-new.png', alt: t.newIn },
     { label: t.earrings, href: '/collections?c=earrings', image: '/images/ed-earrings.png', alt: t.earrings },
     { label: t.rings, href: '/collections?c=rings', image: '/images/p-ring-signet.png', alt: t.rings },
     { label: t.pendants, href: '/collections?c=pendants', image: '/images/p-pendant-ruby.png', alt: t.pendants },

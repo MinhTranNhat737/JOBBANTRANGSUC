@@ -294,12 +294,29 @@ export function mapDbProductToProduct(db: any): Product {
     else if (id % 11 === 0) badge = 'Limited'
   }
 
-  const sizes =
-    cat === 'rings'
-      ? RING_SIZES
-      : cat === 'bracelets'
-        ? ['17cm', '19cm', '21cm']
-        : undefined
+  let sizes: string[] | undefined = undefined
+  if (Array.isArray(db.sizes) && db.sizes.length > 0) {
+    sizes = db.sizes
+  } else if (typeof db.sizes === 'string' && db.sizes.trim()) {
+    try {
+      sizes = JSON.parse(db.sizes)
+    } catch {
+      sizes = db.sizes.split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+  } else {
+    const rawCat = String(db.category_slug || db.category_name || db.category || '').toLowerCase()
+    if (rawCat.includes('quan-ao') || rawCat.includes('áo') || rawCat.includes('quần')) {
+      sizes = ['S', 'M', 'L', 'XL']
+    } else if (rawCat.includes('nhan') || cat === 'rings') {
+      sizes = RING_SIZES
+    } else if (rawCat.includes('vong') || rawCat.includes('lac') || cat === 'bracelets') {
+      sizes = ['16cm', '18cm', '20cm']
+    } else if (rawCat.includes('day-chuyen') || rawCat.includes('mat-day-chuyen')) {
+      sizes = ['50cm', '55cm', '60cm']
+    } else if (rawCat.includes('dep') || rawCat.includes('giay')) {
+      sizes = ['39', '40', '41', '42', '43']
+    }
+  }
 
   return {
     id: db.id,

@@ -43,8 +43,8 @@ export const TRANSLATIONS = {
         title: 'KHÁM PHÁ',
         items: [
           { href: '/collections', label: 'TẤT CẢ SẢN PHẨM' },
-          { href: '/collections', label: 'MỚI NHẤT (LATEST)' },
-          { href: '/collections', label: 'BÁN CHẠY NHẤT' },
+          { href: '/collections?badge=New', label: 'MỚI NHẤT (LATEST)' },
+          { href: '/collections?badge=Best+seller', label: 'BÁN CHẠY NHẤT' },
           { href: '/collections?c=rings', label: 'BỘ SƯU TẬP TỨ LINH' },
           { href: '/collections', label: 'GỢI Ý CHO NGƯỜI MỚI' },
         ],
@@ -185,8 +185,8 @@ export const TRANSLATIONS = {
         title: 'EXPLORE',
         items: [
           { href: '/collections', label: 'ALL PRODUCTS' },
-          { href: '/collections', label: 'NEW IN (LATEST)' },
-          { href: '/collections', label: 'BEST SELLERS' },
+          { href: '/collections?badge=New', label: 'NEW IN (LATEST)' },
+          { href: '/collections?badge=Best+seller', label: 'BEST SELLERS' },
           { href: '/collections?c=rings', label: 'FOUR MYTHIC GUARDIANS' },
           { href: '/collections', label: 'NEWBIE PICKS' },
         ],

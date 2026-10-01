@@ -336,7 +336,7 @@ export default function CheckoutPage() {
 
   // SePay QR parameters
   const sepayConfig = PAYMENT_CONFIG.sepay
-  const sepayDescription = currentOrder ? getSepayTransferDescription(currentOrder.id) : 'THUC1089'
+  const sepayDescription = currentOrder ? getSepayTransferDescription(currentOrder.id) : 'THUC1001'
   const sepayQrUrl = currentOrder
     ? `https://qr.sepay.vn/img?acc=${encodeURIComponent(sepayConfig.accountNumber)}&bank=${encodeURIComponent(
         sepayConfig.bankCode,

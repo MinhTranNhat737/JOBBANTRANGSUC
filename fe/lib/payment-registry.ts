@@ -1,5 +1,5 @@
 import type { Order } from './admin-data'
-import { MOCK_ORDERS } from './admin-data'
+import { getAllServerOrders } from './server-order-repo'
 
 export type PaidTransaction = {
   orderId: string
@@ -55,7 +55,7 @@ export function isOrderPaidOnServer(orderId: string): boolean {
  */
 export function findOrderForServerProcessing(orderId: string, fallbackAmount?: number): Order {
   const normId = normalizeId(orderId)
-  const existing = MOCK_ORDERS.find((o) => o.id === normId)
+  const existing = getAllServerOrders().find((o) => o.id === normId)
   if (existing) return existing
 
   return {

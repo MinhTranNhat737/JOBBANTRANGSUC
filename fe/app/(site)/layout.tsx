@@ -11,11 +11,15 @@ export default function SiteLayout({
 }>) {
   return (
     <ThemeProvider>
-      <AnnouncementBar />
-      <SiteHeader />
+      <div className="print:hidden">
+        <AnnouncementBar />
+        <SiteHeader />
+      </div>
       {children}
-      <SiteFooter />
-      <CartDrawer />
+      <div className="print:hidden">
+        <SiteFooter />
+        <CartDrawer />
+      </div>
     </ThemeProvider>
   )
 }

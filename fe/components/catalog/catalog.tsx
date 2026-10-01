@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, SlidersHorizontal, X } from 'lucide-react'
+import { Check, Search, SlidersHorizontal, X } from 'lucide-react'
 import { ProductCard } from '@/components/site/product-card'
 import { type Category, type Product } from '@/lib/products'
 import { useLanguage } from '@/lib/i18n'
@@ -23,13 +23,37 @@ export function Catalog({ products }: { products: Product[] }) {
   const sort = (params.get('sort') as Sort | null) ?? 'featured'
   const priceParam = (params.get('price') as PriceRange | null) ?? 'all'
   const availParam = (params.get('avail') as Availability | null) ?? 'all'
-  const badgeParam = (params.get('badge') as BadgeFilter | null) ?? 'all'
+
+  // Tự động nhận diện New In qua param badge=New, tag=new, filter=new, new=true, v.v.
+  const rawBadge = (params.get('badge') || params.get('tag') || params.get('filter') || '').trim()
+  const isNewInRequested =
+    params.get('new') === 'true' ||
+    params.get('newIn') === 'true' ||
+    rawBadge.toLowerCase() === 'new' ||
+    rawBadge.toLowerCase() === 'new-in' ||
+    rawBadge.toLowerCase() === 'newin' ||
+    rawBadge.toLowerCase() === 'moi'
+
+  const badgeParam: BadgeFilter = isNewInRequested
+    ? 'New'
+    : rawBadge.toLowerCase() === 'best seller' || rawBadge.toLowerCase() === 'bestseller'
+      ? 'Best seller'
+      : rawBadge.toLowerCase() === 'limited'
+        ? 'Limited'
+        : 'all'
+  const searchParam = (params.get('q') as string | null) ?? ''
 
   // Bộ lọc mặc định ẩn, chỉ mở khi người dùng bấm vào nút Filter
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState(searchParam)
   const { lang } = useLanguage()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
+
+  // Đồng bộ ô tìm kiếm khi URL thay đổi (ví dụ bấm từ Navbar Search)
+  useEffect(() => {
+    setSearchQuery(searchParam)
+  }, [searchParam])
 
   const isEn = mounted && lang === 'en'
 
@@ -64,7 +88,18 @@ export function Catalog({ products }: { products: Product[] }) {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
   }
 
+  const handleSearchSubmit = (value?: string) => {
+    const term = (value !== undefined ? value : searchQuery).trim()
+    setParam('q', term, '')
+  }
+
+  const handleClearSearch = () => {
+    setSearchQuery('')
+    setParam('q', '', '')
+  }
+
   const resetAllFilters = () => {
+    setSearchQuery('')
     const next = new URLSearchParams()
     if (category !== 'all') next.set('c', category)
     if (sort !== 'featured') next.set('sort', sort)
@@ -75,14 +110,29 @@ export function Catalog({ products }: { products: Product[] }) {
   // Đếm các bộ lọc đang được kích hoạt (ngoại trừ category và sort)
   const activeFilterCount = useMemo(() => {
     let count = 0
+    if (searchParam.trim()) count++
     if (priceParam !== 'all') count++
     if (availParam !== 'all') count++
     if (badgeParam !== 'all') count++
     return count
-  }, [priceParam, availParam, badgeParam])
+  }, [searchParam, priceParam, availParam, badgeParam])
 
   const visible = useMemo(() => {
     let filtered = products
+
+    // Lọc theo từ khóa tìm kiếm
+    if (searchParam.trim()) {
+      const q = searchParam.trim().toLowerCase()
+      filtered = filtered.filter((p) => {
+        const nameMatch = p.name?.toLowerCase().includes(q)
+        const descMatch = p.description?.toLowerCase().includes(q)
+        const matMatch = p.material?.toLowerCase().includes(q)
+        const slugMatch = p.slug?.toLowerCase().includes(q)
+        const catMatch = p.category?.toLowerCase().includes(q)
+        const badgeMatch = p.badge?.toLowerCase().includes(q)
+        return nameMatch || descMatch || matMatch || slugMatch || catMatch || badgeMatch
+      })
+    }
 
     if (category !== 'all') {
       filtered = filtered.filter((p) => p.category === category)
@@ -101,13 +151,19 @@ export function Catalog({ products }: { products: Product[] }) {
     }
 
     if (badgeParam !== 'all') {
-      filtered = filtered.filter((p) => p.badge === badgeParam)
+      filtered = filtered.filter((p) => {
+        if (badgeParam === 'New') {
+          const b = (p.badge || '').toLowerCase().trim()
+          return b === 'new' || b.includes('new') || b.includes('mới')
+        }
+        return (p.badge || '').toLowerCase() === badgeParam.toLowerCase()
+      })
     }
 
     if (sort === 'price-asc') return [...filtered].sort((a, b) => a.price - b.price)
     if (sort === 'price-desc') return [...filtered].sort((a, b) => b.price - a.price)
     return filtered
-  }, [products, category, sort, priceParam, availParam, badgeParam])
+  }, [products, searchParam, category, sort, priceParam, availParam, badgeParam])
 
   // Khóa scroll khi mở drawer bên trái
   useEffect(() => {
@@ -124,13 +180,16 @@ export function Catalog({ products }: { products: Product[] }) {
   return (
     <>
       {/* ── DÒNG DANH MỤC SẢN PHẨM Ở TRÊN ĐẦU TRANG – RÕ RÀNG VÀ BORDERLESS ── */}
-      <div className="sticky top-[57px] z-30 mb-6 bg-[var(--header-bg)] px-3 py-3 backdrop-blur-md md:top-[65px] sm:px-5 md:px-6 lg:px-8">
+      <div
+        style={{ top: 'var(--site-header-height, 86px)' }}
+        className="sticky z-30 mb-6 border-b border-[var(--border-subtle)] bg-[var(--header-bg)]/95 px-3 py-3 shadow-sm backdrop-blur-md sm:px-5 md:px-6 lg:px-8 transition-all"
+      >
         <div className="flex flex-wrap items-center justify-between gap-4">
-          {/* Dòng các danh mục sản phẩm: rõ ràng, đậm nét, thanh thoát không khung viền */}
+          {/* Dòng các danh mục sản phẩm kèm ô tìm kiếm chữ nhật ngay cạnh nút Phụ kiện */}
           <div
             role="tablist"
             aria-label="Danh mục sản phẩm"
-            className="flex items-center gap-5 overflow-x-auto pb-1 sm:gap-7 md:gap-8"
+            className="flex items-center gap-4 sm:gap-6 md:gap-7 overflow-x-auto pb-1"
           >
             {categories.map((c) => {
               const active = category === c.value
@@ -158,12 +217,55 @@ export function Catalog({ products }: { products: Product[] }) {
                 </button>
               )
             })}
+
+            {/* Hộp tìm kiếm chữ nhật ngay bên cạnh nút Phụ kiện */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSearchSubmit()
+              }}
+              className="group relative flex items-center h-8 sm:h-8.5 w-44 sm:w-56 md:w-64 rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-all duration-200 hover:border-[var(--admin-gold)] focus-within:border-[var(--admin-gold)] focus-within:ring-1 focus-within:ring-[var(--admin-gold)]/30 shrink-0 ml-1 sm:ml-2"
+            >
+              <Search className="size-3.5 ml-2.5 text-[var(--admin-gold)] shrink-0 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  if (e.target.value === '') {
+                    handleClearSearch()
+                  }
+                }}
+                placeholder={isEn ? 'Search...' : 'Tìm sản phẩm...'}
+                className="h-full flex-1 bg-transparent px-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="flex size-5 items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] mr-1"
+                  title="Xóa tìm kiếm"
+                >
+                  <X className="size-3" />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="h-full px-2.5 sm:px-3 bg-[var(--text-primary)] text-[var(--surface-primary)] hover:opacity-90 font-bold text-[10px] uppercase tracking-wider rounded-r-sm shrink-0"
+              >
+                {isEn ? 'Find' : 'Tìm'}
+              </button>
+            </form>
           </div>
 
           {/* Phía bên phải: Nút BỘ LỌC + Sắp xếp + Số lượng sản phẩm */}
-          <div className="flex items-center gap-3">
-            <span className="hidden text-xs font-medium text-[var(--text-secondary)] tabular-nums sm:inline-block">
-              {visible.length} {isEn ? 'items' : 'sản phẩm'}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <span className="hidden text-xs font-semibold text-[var(--text-secondary)] tabular-nums sm:inline-block">
+              {badgeParam === 'New'
+                ? isEn
+                  ? `${visible.length} new items found`
+                  : `Tìm thấy ${visible.length} sản phẩm mới`
+                : `${visible.length} ${isEn ? 'items' : 'sản phẩm'}`}
             </span>
 
             {/* Nút bấm mở Bộ lọc bên tay trái */}
@@ -204,12 +306,27 @@ export function Catalog({ products }: { products: Product[] }) {
           </div>
         </div>
 
-        {/* Thanh nhỏ hiển thị các tag đang lọc (nếu có) để người dùng xem nhanh */}
+        {/* Thanh nhỏ hiển thị các tag đang lọc & từ khóa đang tìm kiếm */}
         {activeFilterCount > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-2 pt-1 text-xs">
             <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)]">
               {isEn ? 'Filtering:' : 'Đang lọc:'}
             </span>
+
+            {/* Tag từ khóa tìm kiếm */}
+            {searchParam.trim() && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--admin-gold)] bg-[var(--admin-gold)]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--admin-gold)]/20"
+                title="Bấm để xóa từ khóa tìm kiếm"
+              >
+                <Search className="size-3 text-[var(--admin-gold)]" />
+                <span>&quot;{searchParam}&quot;</span>
+                <X className="size-3" />
+              </button>
+            )}
+
             {priceParam !== 'all' && (
               <button
                 type="button"
@@ -233,10 +350,29 @@ export function Catalog({ products }: { products: Product[] }) {
             {badgeParam !== 'all' && (
               <button
                 type="button"
-                onClick={() => setParam('badge', 'all', 'all')}
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-0.5 text-[11px] text-[var(--text-primary)] transition-colors hover:border-[var(--text-primary)]"
+                onClick={() => {
+                  const next = new URLSearchParams(params.toString())
+                  next.delete('badge')
+                  next.delete('tag')
+                  next.delete('filter')
+                  next.delete('new')
+                  next.delete('newIn')
+                  const qs = next.toString()
+                  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+                }}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] transition-colors',
+                  badgeParam === 'New'
+                    ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 font-semibold hover:bg-amber-500/25'
+                    : 'border border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-primary)] hover:border-[var(--text-primary)]'
+                )}
+                title="Bấm để xóa lọc"
               >
-                <span>{badgeOptions.find((b) => b.value === badgeParam)?.label}</span>
+                <span>
+                  {badgeParam === 'New'
+                    ? (isEn ? '✨ New Arrivals (NEW IN)' : '✨ Hàng mới (NEW IN)')
+                    : badgeOptions.find((b) => b.value === badgeParam)?.label}
+                </span>
                 <X className="size-3" />
               </button>
             )}
@@ -411,21 +547,41 @@ export function Catalog({ products }: { products: Product[] }) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <SlidersHorizontal className="size-10 text-[var(--text-muted)] opacity-50" />
+            {searchParam.trim() ? (
+              <Search className="size-10 text-[var(--text-muted)] opacity-50" />
+            ) : (
+              <SlidersHorizontal className="size-10 text-[var(--text-muted)] opacity-50" />
+            )}
             <h3 className="mt-4 text-base font-semibold text-[var(--text-primary)]">
-              {isEn ? 'No products match your criteria' : 'Không có tác phẩm nào phù hợp với bộ lọc'}
+              {searchParam.trim()
+                ? isEn
+                  ? `No products found matching "${searchParam}"`
+                  : `Không tìm thấy sản phẩm nào với từ khóa "${searchParam}"`
+                : isEn
+                  ? 'No products match your criteria'
+                  : 'Không có tác phẩm nào phù hợp với bộ lọc'}
             </h3>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">
-              {isEn
-                ? 'Try removing some filters or changing your selection.'
-                : 'Hãy thử xóa bớt các điều kiện lọc hoặc chọn mức giá khác.'}
+            <p className="mt-2 text-sm text-[var(--text-secondary)] max-w-md">
+              {searchParam.trim()
+                ? isEn
+                  ? 'Try searching with another keyword or clear the search to view all.'
+                  : 'Hãy thử tìm kiếm với từ khóa khác như nhẫn, dây chuyền, Chrome Hearts hoặc bấm nút bên dưới.'
+                : isEn
+                  ? 'Try removing some filters or changing your selection.'
+                  : 'Hãy thử xóa bớt các điều kiện lọc hoặc chọn mức giá khác.'}
             </p>
             <button
               type="button"
               onClick={resetAllFilters}
               className="mt-6 rounded-sm border border-[var(--border-strong)] bg-[var(--surface-secondary)] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-all hover:bg-[var(--text-primary)] hover:text-[var(--surface-primary)]"
             >
-              {isEn ? 'Reset All Filters' : 'Đặt Lại Bộ Lọc'}
+              {searchParam.trim()
+                ? isEn
+                  ? 'Clear Search & Show All'
+                  : 'Xóa Tìm Kiếm & Xem Tất Cả'
+                : isEn
+                  ? 'Reset All Filters'
+                  : 'Đặt Lại Bộ Lọc'}
             </button>
           </div>
         )}

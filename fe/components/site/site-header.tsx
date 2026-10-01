@@ -2,24 +2,28 @@
 
 import Link from 'next/link'
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { ChevronDown, Heart, Menu, Moon, Search, ShoppingBag, Sun, User, X, Package, LogOut } from 'lucide-react'
 import { selectCartCount, useShop } from '@/lib/store'
 import { TRANSLATIONS, useLanguage } from '@/lib/i18n'
 import { useTheme } from '@/lib/theme'
 import { useCustomer } from '@/lib/customer-store'
 import { UserNav } from '@/components/site/user-nav'
+import { SearchDialog } from '@/components/site/search-dialog'
 import { cn } from '@/lib/utils'
 
-function isItemActive(href: string, pathname: string) {
+function isItemActive(href: string, pathname: string, currentBadge?: string | null) {
   if (href === '/') {
     return pathname === '/'
   }
   if (href === '/about') {
     return pathname === '/about'
   }
+  if (href.includes('badge=New')) {
+    return pathname === '/collections' && (currentBadge === 'New' || currentBadge === 'new')
+  }
   if (href === '/collections') {
-    return pathname.startsWith('/collections')
+    return pathname.startsWith('/collections') && currentBadge !== 'New' && currentBadge !== 'new'
   }
   return false
 }
@@ -133,7 +137,7 @@ function ThemeToggle() {
   )
 }
 
-function NavLinks({
+function NavLinksContent({
   onMenuEnter,
   onMenuLeave,
   megaOpen,
@@ -143,6 +147,8 @@ function NavLinks({
   megaOpen: boolean
 }) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const currentBadge = searchParams?.get('badge') || searchParams?.get('tag')
   const { lang } = useLanguage()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -152,14 +158,14 @@ function NavLinks({
   // Thứ tự bắt buộc: MENU -> HÀNG MỚI (NEW IN) -> ABOUT
   const navItems = [
     { href: '/', label: t.nav.menu, hasMegaMenu: true },
-    { href: '/collections', label: t.nav.newIn, hasMegaMenu: false },
+    { href: '/collections?badge=New', label: t.nav.newIn, hasMegaMenu: false },
     { href: '/about', label: t.nav.about, hasMegaMenu: false },
   ]
 
   return (
     <nav aria-label="Main" className="hidden items-center gap-6 lg:flex xl:gap-8">
       {navItems.map((item) => {
-        const active = isItemActive(item.href, pathname)
+        const active = isItemActive(item.href, pathname, currentBadge)
         const isMenuTrigger = item.hasMegaMenu
         const isCurrentOpen = isMenuTrigger && megaOpen
 
@@ -197,7 +203,25 @@ function NavLinks({
   )
 }
 
-function MobileNavLinks({ onClose }: { onClose: () => void }) {
+function NavLinks(props: {
+  onMenuEnter: () => void
+  onMenuLeave: () => void
+  megaOpen: boolean
+}) {
+  return (
+    <Suspense fallback={<nav aria-label="Main" className="hidden items-center gap-6 lg:flex xl:gap-8" />}>
+      <NavLinksContent {...props} />
+    </Suspense>
+  )
+}
+
+function MobileNavLinks({
+  onClose,
+  onOpenSearch,
+}: {
+  onClose: () => void
+  onOpenSearch: () => void
+}) {
   const pathname = usePathname()
   const { lang } = useLanguage()
   const { customer, logout } = useCustomer()
@@ -209,6 +233,19 @@ function MobileNavLinks({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="flex flex-col space-y-4">
+      {/* Nút tìm kiếm nhanh trên Mobile */}
+      <button
+        type="button"
+        onClick={() => {
+          onClose()
+          onOpenSearch()
+        }}
+        className="flex items-center gap-3 w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2.5 text-xs text-[var(--text-muted)] transition-all hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
+      >
+        <Search className="size-4 text-[var(--text-primary)] shrink-0" />
+        <span className="truncate">{t.header.search} (nhẫn, dây chuyền, Chrome Hearts)...</span>
+      </button>
+
       {/* Bộ chọn ngôn ngữ trên mobile */}
       <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
         <span className="text-xs uppercase tracking-wider text-[var(--text-secondary)]">Language / Ngôn ngữ:</span>
@@ -294,11 +331,11 @@ function MobileNavLinks({ onClose }: { onClose: () => void }) {
         <li className="border-b border-[var(--border-subtle)] pb-2">
           <div className="flex items-center justify-between">
             <Link
-              href="/collections"
+              href="/collections?badge=New"
               onClick={onClose}
               className={cn(
                 'block py-2.5 text-sm uppercase tracking-[0.15em] transition-colors',
-                pathname.startsWith('/collections')
+                pathname === '/collections'
                   ? 'font-bold text-[var(--text-primary)] border-l-2 border-[var(--text-primary)] pl-3'
                   : 'font-normal text-[var(--text-secondary)] hover:text-[var(--text-primary)] pl-3',
               )}
@@ -369,6 +406,7 @@ function MobileNavLinks({ onClose }: { onClose: () => void }) {
 export function SiteHeader() {
   const [open, setOpen] = useState(false)
   const [megaOpen, setMegaOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const count = useShop(selectCartCount)
   const wishCount = useShop((s) => s.wishlist.length)
@@ -376,6 +414,7 @@ export function SiteHeader() {
   const pathname = usePathname()
   const { lang } = useLanguage()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const headerRef = useRef<HTMLElement>(null)
 
   const currentLang = mounted ? lang : 'vi'
   const t = TRANSLATIONS[currentLang]
@@ -405,16 +444,40 @@ export function SiteHeader() {
     const handleScroll = () => {
       setMegaOpen(false)
     }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setSearchOpen((v) => !v)
+      }
+    }
+
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        document.documentElement.style.setProperty(
+          '--site-header-height',
+          `${headerRef.current.offsetHeight}px`
+        )
+      }
+    }
+    updateHeaderHeight()
+
     window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', updateHeaderHeight)
     window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', updateHeaderHeight)
       window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--header-bg)] backdrop-blur-md transition-colors duration-300">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--header-bg)] backdrop-blur-md transition-colors duration-300"
+    >
       <div className="relative flex items-center justify-between px-6 py-4 sm:px-10 sm:py-5 lg:px-16">
         {/* Cánh trái: nút menu trên mobile (<lg), menu [MENU - BỘ SƯU TẬP - VỀ LEGEND] trên desktop (>=lg) */}
         <div className="flex flex-1 items-center justify-start min-w-0">
@@ -485,7 +548,10 @@ export function SiteHeader() {
           </Link>
 
           {/* Tìm kiếm */}
-          <IconButton label={t.header.search}>
+          <IconButton
+            label={t.header.search}
+            onClick={() => setSearchOpen(true)}
+          >
             <Search className="size-5 text-[var(--text-primary)] transition-transform duration-200 group-hover:scale-110" strokeWidth={2} />
           </IconButton>
 
@@ -516,24 +582,24 @@ export function SiteHeader() {
             : 'opacity-0 invisible -translate-y-2 pointer-events-none',
         )}
       >
-        <div className="mx-auto max-w-screen-2xl px-6 py-9 lg:px-10">
-          <div className="grid grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="mx-auto max-w-screen-2xl px-6 py-10 lg:px-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10 xl:gap-12 items-start">
             {/* Cột 1: Khám phá */}
-            <div className="col-span-12 md:col-span-3 lg:col-span-2 space-y-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--text-muted)] pb-2 border-b border-[var(--border-subtle)]">
+            <div className="space-y-5">
+              <h3 className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--text-primary)] pb-3 border-b border-[var(--border-subtle)]">
                 {t.megaMenu.highlights.title}
               </h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3.5 pt-1">
                 {t.megaMenu.highlights.items.map((item) => (
                   <li key={item.label}>
                     <Link
                       href={item.href}
                       onClick={() => setMegaOpen(false)}
-                      className="group flex items-center py-1 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:translate-x-1"
+                      className="group flex items-center py-1.5 text-xs sm:text-[13px] uppercase tracking-[0.16em] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:translate-x-1.5"
                     >
                       <span className="relative">
                         {item.label}
-                        <span className="absolute bottom-0 left-0 h-[1px] w-0 bg-[var(--text-primary)] transition-all duration-200 group-hover:w-full" />
+                        <span className="absolute bottom-0 left-0 h-[1.5px] w-0 bg-[var(--text-primary)] transition-all duration-200 group-hover:w-full" />
                       </span>
                     </Link>
                   </li>
@@ -542,21 +608,21 @@ export function SiteHeader() {
             </div>
 
             {/* Cột 2: Trang sức bạc */}
-            <div className="col-span-12 md:col-span-3 lg:col-span-2.5 space-y-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--text-muted)] pb-2 border-b border-[var(--border-subtle)]">
+            <div className="space-y-5">
+              <h3 className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--text-primary)] pb-3 border-b border-[var(--border-subtle)]">
                 {t.megaMenu.jewelry.title}
               </h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3.5 pt-1">
                 {t.megaMenu.jewelry.items.map((item) => (
                   <li key={item.label}>
                     <Link
                       href={item.href}
                       onClick={() => setMegaOpen(false)}
-                      className="group flex items-center py-1 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:translate-x-1"
+                      className="group flex items-center py-1.5 text-xs sm:text-[13px] uppercase tracking-[0.16em] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:translate-x-1.5"
                     >
                       <span className="relative">
                         {item.label}
-                        <span className="absolute bottom-0 left-0 h-[1px] w-0 bg-[var(--text-primary)] transition-all duration-200 group-hover:w-full" />
+                        <span className="absolute bottom-0 left-0 h-[1.5px] w-0 bg-[var(--text-primary)] transition-all duration-200 group-hover:w-full" />
                       </span>
                     </Link>
                   </li>
@@ -565,21 +631,21 @@ export function SiteHeader() {
             </div>
 
             {/* Cột 3: Dịch vụ & Chế tác */}
-            <div className="col-span-12 md:col-span-3 lg:col-span-2.5 space-y-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--text-muted)] pb-2 border-b border-[var(--border-subtle)]">
+            <div className="space-y-5">
+              <h3 className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--text-primary)] pb-3 border-b border-[var(--border-subtle)]">
                 {t.megaMenu.services.title}
               </h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3.5 pt-1">
                 {t.megaMenu.services.items.map((item) => (
                   <li key={item.label}>
                     <Link
                       href={item.href}
                       onClick={() => setMegaOpen(false)}
-                      className="group flex items-center py-1 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:translate-x-1"
+                      className="group flex items-center py-1.5 text-xs sm:text-[13px] uppercase tracking-[0.16em] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:translate-x-1.5"
                     >
                       <span className="relative">
                         {item.label}
-                        <span className="absolute bottom-0 left-0 h-[1px] w-0 bg-[var(--text-primary)] transition-all duration-200 group-hover:w-full" />
+                        <span className="absolute bottom-0 left-0 h-[1.5px] w-0 bg-[var(--text-primary)] transition-all duration-200 group-hover:w-full" />
                       </span>
                     </Link>
                   </li>
@@ -588,13 +654,12 @@ export function SiteHeader() {
             </div>
 
             {/* Cột 4 & 5: 2 Promo Banner Cards như phong cách Helios */}
-            <div className="col-span-12 lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {t.megaMenu.cards.map((card) => (
+            {t.megaMenu.cards.map((card) => (
+              <div key={card.title} className="col-span-1 pt-1">
                 <Link
-                  key={card.title}
                   href={card.href}
                   onClick={() => setMegaOpen(false)}
-                  className="group relative flex aspect-[16/11] flex-col justify-end overflow-hidden rounded border border-[var(--border-subtle)] p-5 transition-all hover:border-[var(--border-strong)] hover:shadow-2xl"
+                  className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-sm border border-[var(--border-subtle)] p-5 transition-all hover:border-[var(--text-primary)] hover:shadow-2xl"
                 >
                   <img
                     src={card.image}
@@ -615,8 +680,8 @@ export function SiteHeader() {
                     </span>
                   </div>
                 </Link>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -628,10 +693,19 @@ export function SiteHeader() {
           className="border-t border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-6 py-4 lg:hidden"
         >
           <Suspense fallback={null}>
-            <MobileNavLinks onClose={() => setOpen(false)} />
+            <MobileNavLinks
+              onClose={() => setOpen(false)}
+              onOpenSearch={() => setSearchOpen(true)}
+            />
           </Suspense>
         </nav>
       )}
+
+      {/* Dialog Tìm kiếm Toàn diện */}
+      <SearchDialog
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+      />
     </header>
   )
 }
@@ -640,14 +714,17 @@ function IconButton({
   label,
   className,
   children,
+  onClick,
 }: {
   label: string
   className?: string
   children: React.ReactNode
+  onClick?: () => void
 }) {
   return (
     <button
       type="button"
+      onClick={onClick}
       aria-label={label}
       className={cn(
         'group flex size-10 sm:size-11 items-center justify-center rounded-full text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95',

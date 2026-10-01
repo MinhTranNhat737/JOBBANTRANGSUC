@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { MOCK_ORDERS, type Order, type OrderStatus } from '@/lib/admin-data'
+import type { Order, OrderStatus } from '@/lib/admin-data'
 import { API_BASE_URL } from '@/lib/products'
 
 type NewOrderInput = {
@@ -42,17 +42,17 @@ type OrderStoreState = {
 export const useOrderStore = create<OrderStoreState>()(
   persist(
     (set, get) => ({
-      orders: MOCK_ORDERS,
+      orders: [],
       syncOrders: (newOrders) => {
         set({ orders: newOrders })
       },
       createOrder: (input) => {
         const state = get()
-        // Generate order number, e.g. #1090, #1091...
+        // Generate order number, e.g. #1001, #1002...
         const numericIds = state.orders
           .map((o) => parseInt(o.id.replace(/\D/g, ''), 10))
           .filter((n) => !isNaN(n))
-        const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1090
+        const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1001
         const id = `#${nextNum}`
         const now = new Date().toISOString()
 
@@ -188,7 +188,7 @@ export const useOrderStore = create<OrderStoreState>()(
       },
     }),
     {
-      name: 'legend-orders',
+      name: 'legend-orders-v2',
       partialize: (state) => ({ orders: state.orders }),
     },
   ),

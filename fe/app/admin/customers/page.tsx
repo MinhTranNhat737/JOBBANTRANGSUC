@@ -1,34 +1,94 @@
 'use client'
 
-import { MOCK_CUSTOMERS, formatCompactPrice, formatDate } from '@/lib/admin-data'
+import { formatCompactPrice, formatDate } from '@/lib/admin-data'
 import { Search } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+
+export type CustomerItem = {
+  id: string
+  name: string
+  email: string
+  phone: string
+  totalOrders: number
+  totalSpent: number
+  joinedAt: string
+}
 
 export default function CustomersPage() {
+  const [customers, setCustomers] = useState<CustomerItem[]>([])
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/customers')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.customers)) {
+          const mapped: CustomerItem[] = data.customers.map((c: any) => ({
+            id: String(c.id),
+            name: c.full_name || c.name || 'Khách hàng',
+            email: c.email || '—',
+            phone: c.phone || '—',
+            totalOrders: parseInt(c.order_count ?? c.totalOrders ?? 0, 10),
+            totalSpent: parseInt(c.total_spent ?? c.totalSpent ?? 0, 10),
+            joinedAt: c.created_at || c.joinedAt || new Date().toISOString(),
+          }))
+          setCustomers(mapped)
+        }
+      })
+      .catch((err) => console.error('Error fetching customers:', err))
+      .finally(() => setLoading(false))
+  }, [])
 
   const sorted = useMemo(() => {
-    const list = [...MOCK_CUSTOMERS].sort((a, b) => b.totalSpent - a.totalSpent)
+    const list = [...customers].sort((a, b) => b.totalSpent - a.totalSpent)
     if (!search) return list
-    return list.filter(c =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase())
+    return list.filter(
+      (c) =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.email.toLowerCase().includes(search.toLowerCase()) ||
+        c.phone.includes(search),
     )
-  }, [search])
+  }, [customers, search])
 
-  const top3 = MOCK_CUSTOMERS.sort((a, b) => b.totalSpent - a.totalSpent).slice(0, 3)
+  const top3 = useMemo(() => {
+    return [...customers]
+      .filter((c) => c.totalSpent > 0)
+      .sort((a, b) => b.totalSpent - a.totalSpent)
+      .slice(0, 3)
+  }, [customers])
+
   const rankStyles = ['gold', 'silver', 'bronze'] as const
   const rankEmojis = ['🥇', '🥈', '🥉']
 
   return (
     <>
-      <div className="admin-page-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
+      <div
+        className="admin-page-heading"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          gap: 12,
+        }}
+      >
         <div>
           <h1>Khách hàng</h1>
-          <p>{MOCK_CUSTOMERS.length} khách hàng đã đăng ký</p>
+          <p>{customers.length} khách hàng đã lưu trong hệ thống</p>
         </div>
         <div style={{ position: 'relative' }}>
-          <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-muted)', width: 16, height: 16 }} />
+          <Search
+            style={{
+              position: 'absolute',
+              left: 14,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--admin-text-muted)',
+              width: 16,
+              height: 16,
+            }}
+          />
           <input
             className="admin-input"
             style={{ paddingLeft: 40, borderRadius: 999, height: 38, width: 260 }}
@@ -39,8 +99,8 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {/* Top VIP */}
-      {!search && (
+      {/* Top VIP (chỉ hiện khi có khách hàng đã chi tiêu) */}
+      {!search && top3.length > 0 && (
         <div className="vip-cards" style={{ marginBottom: 24 }}>
           {top3.map((c, i) => (
             <div key={c.id} className={`vip-card ${rankStyles[i]}`}>
@@ -71,17 +131,33 @@ export default function CustomersPage() {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((c, i) => (
-                <tr key={c.id}>
-                  <td>{i + 1}</td>
-                  <td style={{ fontWeight: 500, color: 'var(--admin-text)' }}>{c.name}</td>
-                  <td>{c.email}</td>
-                  <td>{c.phone}</td>
-                  <td style={{ textAlign: 'center' }}>{c.totalOrders}</td>
-                  <td style={{ fontWeight: 500, color: 'var(--admin-gold)' }}>{formatCompactPrice(c.totalSpent)}</td>
-                  <td>{formatDate(c.joinedAt)}</td>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '36px 0', color: 'var(--admin-text-secondary)' }}>
+                    Đang tải danh sách khách hàng...
+                  </td>
                 </tr>
-              ))}
+              ) : sorted.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '36px 0', color: 'var(--admin-text-secondary)' }}>
+                    {search ? 'Không tìm thấy khách hàng phù hợp.' : 'Chưa có khách hàng nào trong hệ thống.'}
+                  </td>
+                </tr>
+              ) : (
+                sorted.map((c, i) => (
+                  <tr key={c.id}>
+                    <td>{i + 1}</td>
+                    <td style={{ fontWeight: 500, color: 'var(--admin-text)' }}>{c.name}</td>
+                    <td>{c.email}</td>
+                    <td>{c.phone}</td>
+                    <td style={{ textAlign: 'center' }}>{c.totalOrders}</td>
+                    <td style={{ fontWeight: 500, color: 'var(--admin-gold)' }}>
+                      {formatCompactPrice(c.totalSpent)}
+                    </td>
+                    <td>{formatDate(c.joinedAt)}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
