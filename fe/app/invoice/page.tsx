@@ -28,22 +28,41 @@ function InvoiceDocument() {
   const hasAutoPrinted = useRef(false)
 
   useEffect(() => {
-    // If not found in local store or needs refresh, fetch from server orders
-    fetch('/api/orders')
-      .then((res) => res.json())
+    if (!orderId) {
+      setLoading(false)
+      return
+    }
+
+    const cleanId = orderId.trim()
+    const normalized = cleanId.startsWith('#') ? cleanId : `#${cleanId}`
+
+    // Check if in local store
+    const local = getOrderById(cleanId)
+    if (local) {
+      setOrder(local)
+      setLoading(false)
+    }
+
+    // Luôn fetch trực tiếp từ server để lấy dữ liệu mới nhất
+    fetch(`/api/orders/${encodeURIComponent(cleanId)}`)
+      .then((res) => {
+        if (res.ok) return res.json()
+        return fetch(`/api/orders?id=${encodeURIComponent(cleanId)}`).then((r) => r.json())
+      })
       .then((data) => {
-        if (data?.orders && Array.isArray(data.orders)) {
+        if (data?.order) {
+          setOrder(data.order)
+        } else if (data?.orders && Array.isArray(data.orders)) {
           syncOrders(data.orders)
-          const normalized = orderId.startsWith('#') ? orderId : `#${orderId}`
           const found = data.orders.find(
-            (o: Order) => o.id === normalized || o.id.replace('#', '') === orderId.replace('#', ''),
+            (o: Order) => o.id === normalized || o.id.replace('#', '') === cleanId.replace('#', ''),
           )
           if (found) setOrder(found)
         }
       })
-      .catch((err) => console.error('Lỗi tải đơn hàng:', err))
+      .catch((err) => console.error('Lỗi tải hóa đơn:', err))
       .finally(() => setLoading(false))
-  }, [orderId, syncOrders])
+  }, [orderId, getOrderById, syncOrders])
 
   // Tự động kích hoạt hộp thoại in / xuất PDF nếu có param ?print=true
   useEffect(() => {

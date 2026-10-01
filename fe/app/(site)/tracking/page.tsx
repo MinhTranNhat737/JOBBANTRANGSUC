@@ -55,6 +55,26 @@ function TrackingContent() {
 
     setFoundOrders(matches)
     setSearched(true)
+
+    // Nếu không thấy trong local, thử tra cứu trực tiếp từ server
+    if (matches.length === 0) {
+      const cleanParam = clean.startsWith('#') ? clean : `#${clean}`
+      fetch(`/api/orders/${encodeURIComponent(cleanParam)}`)
+        .then((res) => {
+          if (res.ok) return res.json()
+          return fetch(`/api/orders?search=${encodeURIComponent(clean)}`).then((r) => r.json())
+        })
+        .then((data) => {
+          if (data?.order) {
+            setFoundOrders([data.order])
+            syncOrders([data.order, ...useOrderStore.getState().orders.filter((o) => o.id !== data.order.id)])
+          } else if (data?.orders && data.orders.length > 0) {
+            setFoundOrders(data.orders)
+            syncOrders(data.orders)
+          }
+        })
+        .catch(() => {})
+    }
   }
 
   useEffect(() => {

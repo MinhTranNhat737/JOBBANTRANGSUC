@@ -52,7 +52,9 @@ export const useOrderStore = create<OrderStoreState>()(
         const numericIds = state.orders
           .map((o) => parseInt(o.id.replace(/\D/g, ''), 10))
           .filter((n) => !isNaN(n))
-        const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1001
+        const nextNum = numericIds.length > 0 
+          ? Math.max(...numericIds) + 1 
+          : Math.floor(1000 + (Date.now() % 9000))
         const id = `#${nextNum}`
         const now = new Date().toISOString()
 
@@ -87,30 +89,8 @@ export const useOrderStore = create<OrderStoreState>()(
 
         set((s) => ({ orders: [newOrder, ...s.orders] }))
 
-        // Đồng bộ đơn hàng lên Backend PostgreSQL Database
-        try {
-          fetch(`${API_BASE_URL}/orders`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              code: id,
-              customer_id: input.customerId ? parseInt(input.customerId) : null,
-              payment_method: input.paymentGateway || (input.paymentMethod?.includes('MoMo') ? 'momo' : input.paymentMethod?.includes('VietQR') ? 'sepay' : 'cod'),
-              shipping_name: input.customerName,
-              shipping_phone: input.customerPhone,
-              shipping_addr: input.customerAddress,
-              note: input.notes,
-              items: input.items.map((it) => ({
-                product_id: (it as any).id || null,
-                name: it.name,
-                unit_price: it.price,
-                quantity: it.quantity,
-              })),
-            }),
-          }).catch((err) => console.warn('Order DB sync background warning:', err))
-        } catch (e) {
-          // ignore
-        }
+        // Lưu DB sẽ được xử lý bởi dispatchOrderNotifications trong checkout 
+        // thông qua server-side route /api/orders (đã await)
 
         return newOrder
       },

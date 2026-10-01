@@ -12,11 +12,12 @@ import {
   FileText,
   Filter,
   Printer,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react'
 import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admin-data'
 import type { OrderStatus } from '@/lib/admin-data'
 import { useOrderStore } from '@/lib/order-store'
-import { API_BASE_URL } from '@/lib/products'
 
 export default function OrdersPage() {
   const { orders, syncOrders, updateOrderStatus } = useOrderStore()
@@ -31,23 +32,38 @@ export default function OrdersPage() {
 
   const [actionMsg, setActionMsg] = useState<string | null>(null)
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(orders.length === 0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch('/api/orders')
+      const data = await res.json()
+      if (data?.orders && Array.isArray(data.orders)) {
+        syncOrders(data.orders)
+      }
+    } catch (err) {
+      console.error('Failed to sync server orders:', err)
+    } finally {
+      setLoading(false)
+      setIsRefreshing(false)
+    }
+  }
 
   useEffect(() => {
-    fetch('/api/orders')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.orders && Array.isArray(data.orders)) {
-          syncOrders(data.orders)
-        }
-      })
-      .catch((err) => console.error('Failed to sync server orders:', err))
-  }, [syncOrders])
+    fetchOrders()
+  }, [])
+
+  const handleManualRefresh = () => {
+    setIsRefreshing(true)
+    fetchOrders()
+  }
 
   // Sync trạng thái đơn hàng lên Backend Heroku PostgreSQL
   const syncStatusToBackend = async (orderId: string, status: string) => {
     try {
       const code = orderId.startsWith('#') ? orderId : `#${orderId}`
-      await fetch(`${API_BASE_URL}/orders/${encodeURIComponent(code)}/status`, {
+      await fetch(`/api/orders/${encodeURIComponent(code)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -172,13 +188,25 @@ export default function OrdersPage() {
           <h1>Đơn hàng</h1>
           <p>Quản lý và xử lý tiến trình {orders.length} đơn hàng</p>
         </div>
-        <Link
-          href="/admin/inventory"
-          className="admin-btn admin-btn-secondary"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
-        >
-          <Boxes size={15} /> Kiểm tra tồn kho ↗
-        </Link>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="admin-btn admin-btn-secondary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+            title="Làm mới danh sách từ máy chủ"
+          >
+            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+            <span>{isRefreshing ? 'Đang tải...' : 'Làm mới'}</span>
+          </button>
+          <Link
+            href="/admin/inventory"
+            className="admin-btn admin-btn-secondary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+          >
+            <Boxes size={15} /> Kiểm tra tồn kho ↗
+          </Link>
+        </div>
       </div>
 
       {actionMsg && (
@@ -303,7 +331,16 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedOrders.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '48px 0', color: 'var(--admin-text-secondary)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                      <Loader2 className="animate-spin text-amber-400" size={28} />
+                      <span style={{ fontSize: 13 }}>Đang đồng bộ đơn hàng từ máy chủ...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={9} style={{ textAlign: 'center', padding: '36px 0', color: 'var(--admin-text-secondary)' }}>
                     Không có đơn hàng nào khớp với bộ lọc.

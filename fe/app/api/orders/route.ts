@@ -9,16 +9,16 @@ const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'h
 function mapBackendOrder(bo: any): Order {
   return {
     id: bo.code || `#${bo.id}`,
-    customerName: bo.shipping_name || bo.customer_name || '',
+    customerName: bo.customer_name || bo.shipping_name || '',
     customerEmail: bo.customer_email || '',
-    customerPhone: bo.shipping_phone || bo.customer_phone || '',
+    customerPhone: bo.customer_phone || bo.shipping_phone || '',
     customerAddress: bo.shipping_addr || '',
     items: Array.isArray(bo.items)
       ? bo.items.map((it: any) => ({
           slug: it.product_slug || '',
           name: it.name || '',
-          image: '',
-          size: '',
+          image: it.image || '',
+          size: it.size || '',
           quantity: it.quantity || 1,
           price: parseFloat(it.unit_price) || 0,
         }))
@@ -30,22 +30,41 @@ function mapBackendOrder(bo: any): Order {
     timeline: [
       {
         date: bo.created_at || new Date().toISOString(),
-        status: 'Đặt hàng thành công',
-        note: 'Đơn hàng đã được tạo',
+        status: bo.status === 'confirmed' || bo.status === 'paid' ? 'Đã xác nhận đơn hàng' : 'Đặt hàng thành công',
+        note: 'Đơn hàng đã được lưu trên hệ thống',
       },
     ],
     notes: bo.note || '',
     paymentMethod: bo.payment_method || 'cod',
     customerId: bo.customer_id ? String(bo.customer_id) : undefined,
-    paymentStatus: bo.status === 'confirmed' || bo.status === 'delivered' || bo.status === 'shipping' ? 'paid' : 'pending',
-    paymentGateway: bo.payment_method as any || 'cod',
+    paymentStatus: bo.status === 'confirmed' || bo.status === 'delivered' || bo.status === 'shipping' || bo.status === 'paid' ? 'paid' : 'pending',
+    paymentGateway: (bo.payment_method as any) || 'cod',
   }
 }
 
 export async function GET(req: Request) {
   try {
-    // Đọc orders từ Backend PostgreSQL Database (Heroku)
     const url = new URL(req.url)
+    const codeParam = url.searchParams.get('id') || url.searchParams.get('code')
+
+    // Nếu query cụ thể mã đơn hàng
+    if (codeParam) {
+      const cleanCode = codeParam.startsWith('#') ? codeParam : `#${codeParam}`
+      try {
+        const singleRes = await fetch(`${BACKEND_API}/orders/${encodeURIComponent(cleanCode)}`, {
+          cache: 'no-store',
+        })
+        if (singleRes.ok) {
+          const singleData = await singleRes.json()
+          const mapped = mapBackendOrder(singleData)
+          return NextResponse.json({ order: mapped, orders: [mapped], pagination: { total: 1 } })
+        }
+      } catch (singleErr) {
+        console.warn('Single order fetch warning:', singleErr)
+      }
+    }
+
+    // Đọc orders danh sách từ Backend PostgreSQL Database (Heroku)
     const search = url.searchParams.get('search') || ''
     const status = url.searchParams.get('status') || ''
     const page = url.searchParams.get('page') || '1'
@@ -86,12 +105,12 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { order, paymentNote } = body as { order: Order; paymentNote?: string }
 
-    if (!order || !order.id || !order.customerName) {
+    if (!order || !order.customerName) {
       return NextResponse.json({ error: 'Thông tin đơn hàng không hợp lệ' }, { status: 400 })
     }
 
     // 1. Lưu vào Backend PostgreSQL Database (Heroku) - AWAIT để đảm bảo lưu thành công
-    let backendOrder = null
+    let savedOrder: Order = order
     try {
       const beRes = await fetch(`${BACKEND_API}/orders`, {
         method: 'POST',
@@ -99,6 +118,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           code: order.id,
           customer_id: order.customerId ? parseInt(order.customerId) : null,
+          customer_email: order.customerEmail || null,
           payment_method: order.paymentGateway || order.paymentMethod || 'cod',
           shipping_name: order.customerName,
           shipping_phone: order.customerPhone,
@@ -106,7 +126,10 @@ export async function POST(req: Request) {
           note: order.notes,
           items: order.items.map((it: any) => ({
             product_id: it.productId || it.id || null,
+            slug: it.slug || '',
             name: it.name,
+            image: it.image || '',
+            size: it.size || '',
             unit_price: it.price,
             quantity: it.quantity,
           })),
@@ -114,8 +137,9 @@ export async function POST(req: Request) {
       })
 
       if (beRes.ok) {
-        backendOrder = await beRes.json()
-        console.log('✅ Order saved to PostgreSQL:', order.id)
+        const beData = await beRes.json()
+        savedOrder = mapBackendOrder(beData)
+        console.log('✅ Order saved to PostgreSQL:', savedOrder.id)
       } else {
         const errText = await beRes.text()
         console.error('❌ Backend order save failed:', beRes.status, errText)
@@ -125,15 +149,15 @@ export async function POST(req: Request) {
     }
 
     // 2. Bắn thông báo Telegram tức thì cho Admin
-    const telegramRes = await sendOrderNotificationToTelegram(order, paymentNote || order.paymentMethod)
+    const telegramRes = await sendOrderNotificationToTelegram(savedOrder, paymentNote || savedOrder.paymentMethod)
 
     // 3. Gửi Hóa đơn điện tử qua Email cho khách hàng & Admin
-    const emailRes = await sendOrderInvoicesToCustomerAndAdmin(order)
+    const emailRes = await sendOrderInvoicesToCustomerAndAdmin(savedOrder)
 
     return NextResponse.json({
       success: true,
       message: 'Đơn hàng đã được lưu trên hệ thống và chuyển tiếp tới admin',
-      order: backendOrder || order,
+      order: savedOrder,
       telegram: telegramRes,
       email: emailRes,
     })

@@ -17,15 +17,22 @@ function OrderSuccessContent() {
   const [order, setOrder] = useState<Order | undefined>(getOrderById(orderId))
 
   useEffect(() => {
-    // If not found in local store, fetch from server repo
-    fetch('/api/orders')
-      .then((res) => res.json())
+    if (!orderId) return
+    const cleanId = orderId.trim()
+    const normalized = cleanId.startsWith('#') ? cleanId : `#${cleanId}`
+
+    fetch(`/api/orders/${encodeURIComponent(cleanId)}`)
+      .then((res) => {
+        if (res.ok) return res.json()
+        return fetch(`/api/orders?id=${encodeURIComponent(cleanId)}`).then((r) => r.json())
+      })
       .then((data) => {
-        if (data?.orders && Array.isArray(data.orders)) {
+        if (data?.order) {
+          setOrder(data.order)
+        } else if (data?.orders && Array.isArray(data.orders)) {
           syncOrders(data.orders)
-          const normalized = orderId.startsWith('#') ? orderId : `#${orderId}`
           const found = data.orders.find(
-            (o: Order) => o.id === normalized || o.id.replace('#', '') === orderId.replace('#', ''),
+            (o: Order) => o.id === normalized || o.id.replace('#', '') === cleanId.replace('#', ''),
           )
           if (found) setOrder(found)
         }

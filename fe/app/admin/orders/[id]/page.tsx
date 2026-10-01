@@ -16,19 +16,46 @@ import {
   Printer,
 } from 'lucide-react'
 import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admin-data'
-import type { OrderStatus } from '@/lib/admin-data'
+import type { OrderStatus, Order } from '@/lib/admin-data'
 import { formatPrice, API_BASE_URL } from '@/lib/products'
 import { useOrderStore } from '@/lib/order-store'
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const { orders, updateOrderStatus, markOrderAsPaid, syncOrders } = useOrderStore()
-  const order = orders.find((o) => o.id === `#${id}` || o.id === id)
+  const cleanId = decodeURIComponent(id)
+  const normalized = cleanId.startsWith('#') ? cleanId : `#${cleanId}`
 
+  const { orders, updateOrderStatus, markOrderAsPaid, syncOrders } = useOrderStore()
+  const initialOrder = orders.find(
+    (o) => o.id === normalized || o.id.replace('#', '') === cleanId.replace('#', '')
+  )
+
+  const [directOrder, setDirectOrder] = useState<Order | undefined>(initialOrder)
+  const [loading, setLoading] = useState(!initialOrder)
   const [statusNote, setStatusNote] = useState('')
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
   const [isDispatching, setIsDispatching] = useState(false)
+
+  const order = directOrder || orders.find(
+    (o) => o.id === normalized || o.id.replace('#', '') === cleanId.replace('#', '')
+  )
+
+  useEffect(() => {
+    fetch(`/api/orders/${encodeURIComponent(cleanId)}`)
+      .then((res) => {
+        if (res.ok) return res.json()
+        return fetch(`/api/orders?id=${encodeURIComponent(cleanId)}`).then((r) => r.json())
+      })
+      .then((data) => {
+        if (data?.order) {
+          setDirectOrder(data.order)
+          syncOrders([data.order, ...useOrderStore.getState().orders.filter((o) => o.id !== data.order.id)])
+        }
+      })
+      .catch((err) => console.error('Failed to sync order detail:', err))
+      .finally(() => setLoading(false))
+  }, [cleanId, syncOrders])
 
   const handleDispatchOrder = async () => {
     if (!order) return
@@ -73,16 +100,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  useEffect(() => {
-    fetch('/api/orders')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.orders && Array.isArray(data.orders)) {
-          syncOrders(data.orders)
-        }
-      })
-      .catch((err) => console.error('Failed to sync orders:', err))
-  }, [syncOrders])
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 12 }}>
+        <Loader2 className="animate-spin text-amber-400" size={32} />
+        <p style={{ color: 'var(--admin-text-secondary)', fontSize: 13, letterSpacing: '0.05em' }}>
+          Đang tải thông tin đơn hàng {normalized}...
+        </p>
+      </div>
+    )
+  }
 
   if (!order) {
     return (
@@ -109,13 +136,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             marginTop: 16,
           }}
         >
-          Không tìm thấy đơn hàng #{id}
+          Không tìm thấy đơn hàng {normalized}
         </h1>
+        <p style={{ color: 'var(--admin-text-secondary)', marginTop: 8, fontSize: 14 }}>
+          Đơn hàng không tồn tại trên hệ thống hoặc đã bị xóa.
+        </p>
       </div>
     )
   }
 
-  const status = ORDER_STATUS_MAP[order.status] || ORDER_STATUS_MAP.pending
+  const status = (ORDER_STATUS_MAP as any)[order.status] || ORDER_STATUS_MAP.pending
 
   const handleStatusChange = (newStatus: OrderStatus) => {
     updateOrderStatus(order.id, newStatus, statusNote.trim() || undefined)
@@ -549,7 +579,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         <div className="form-section">
           <h3>Lịch sử & Hành trình đơn hàng</h3>
           <div className="order-timeline">
-            {order.timeline.map((t, i) => (
+            {(order.timeline || []).map((t: any, i: number) => (
               <div className="timeline-item" key={i}>
                 <div className="timeline-date">{formatDateTime(t.date)}</div>
                 <div
@@ -583,7 +613,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               </tr>
             </thead>
             <tbody>
-              {order.items.map((item, i) => (
+              {(order.items || []).map((item: any, i: number) => (
                 <tr key={i}>
                   <td>
                     <div

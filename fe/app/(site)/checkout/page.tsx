@@ -32,7 +32,7 @@ export default function CheckoutPage() {
   const { customer } = useCustomer()
   const { cart, clearCart } = useShop()
   const cartTotal = useShop(selectCartTotal)
-  const { createOrder, markOrderAsPaid } = useOrderStore()
+  const { createOrder, markOrderAsPaid, syncOrders } = useOrderStore()
 
   const [mounted, setMounted] = useState(false)
   const [name, setName] = useState('')
@@ -105,15 +105,23 @@ export default function CheckoutPage() {
   const grandTotal = cartTotal + shippingFee
 
   // Dispatch order to server repository + telegram + email notifications
-  const dispatchOrderNotifications = async (order: Order, paymentNote?: string) => {
+  const dispatchOrderNotifications = async (order: Order, paymentNote?: string): Promise<Order> => {
     try {
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order, paymentNote }),
       })
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.order) {
+          return data.order
+        }
+      }
+      return order
     } catch (err) {
       console.warn('Failed to send order notification:', err)
+      return order
     }
   }
 
@@ -130,9 +138,20 @@ export default function CheckoutPage() {
     setSubmitting(true)
 
     try {
+      const itemsPayload = cart.map((i) => ({
+        id: (i as any).id,
+        productId: (i as any).id,
+        slug: i.slug,
+        name: i.name,
+        image: i.image,
+        size: i.size,
+        quantity: i.quantity,
+        price: i.price,
+      }))
+
       // 1. COD Flow
       if (paymentMethod === 'COD') {
-        const order = createOrder({
+        const localOrder = createOrder({
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
@@ -144,26 +163,20 @@ export default function CheckoutPage() {
           customerId: customer?.id,
           shippingFee,
           total: grandTotal,
-          items: cart.map((i) => ({
-            slug: i.slug,
-            name: i.name,
-            image: i.image,
-            size: i.size,
-            quantity: i.quantity,
-            price: i.price,
-          })),
+          items: itemsPayload,
         })
 
-        // Dispatch notifications (Telegram + Email + Server Save)
-        await dispatchOrderNotifications(order, 'COD - Đặt hàng thành công')
+        // Dispatch notifications (Telegram + Email + Server Save) & nhận mã đơn chuẩn từ server
+        const savedOrder = await dispatchOrderNotifications(localOrder, 'COD - Đặt hàng thành công')
+        syncOrders([savedOrder, ...useOrderStore.getState().orders.filter((o) => o.id !== localOrder.id && o.id !== savedOrder.id)])
         clearCart()
-        router.push(`/order-success?id=${encodeURIComponent(order.id)}&method=cod`)
+        router.push(`/order-success?id=${encodeURIComponent(savedOrder.id)}&method=cod`)
         return
       }
 
       // 2. SePay VietQR Flow
       if (paymentMethod === 'SEPAY') {
-        const order = createOrder({
+        const localOrder = createOrder({
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
@@ -175,28 +188,21 @@ export default function CheckoutPage() {
           customerId: customer?.id,
           shippingFee,
           total: grandTotal,
-          items: cart.map((i) => ({
-            slug: i.slug,
-            name: i.name,
-            image: i.image,
-            size: i.size,
-            quantity: i.quantity,
-            price: i.price,
-          })),
+          items: itemsPayload,
         })
 
-        setCurrentOrder(order)
-        // Also save initial pending order to server
-        await dispatchOrderNotifications(order, 'Chuyển khoản VietQR SePay - Đang chờ quét mã')
+        const savedOrder = await dispatchOrderNotifications(localOrder, 'Chuyển khoản VietQR SePay - Đang chờ quét mã')
+        syncOrders([savedOrder, ...useOrderStore.getState().orders.filter((o) => o.id !== localOrder.id && o.id !== savedOrder.id)])
+        setCurrentOrder(savedOrder)
         setActiveModal('SEPAY')
         setSubmitting(false)
-        startSepayPolling(order.id)
+        startSepayPolling(savedOrder.id)
         return
       }
 
       // 3. MoMo Wallet Flow
       if (paymentMethod === 'MOMO') {
-        const order = createOrder({
+        const localOrder = createOrder({
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
@@ -208,30 +214,23 @@ export default function CheckoutPage() {
           customerId: customer?.id,
           shippingFee,
           total: grandTotal,
-          items: cart.map((i) => ({
-            slug: i.slug,
-            name: i.name,
-            image: i.image,
-            size: i.size,
-            quantity: i.quantity,
-            price: i.price,
-          })),
+          items: itemsPayload,
         })
 
-        setCurrentOrder(order)
-        // Also save initial pending order to server
-        await dispatchOrderNotifications(order, 'Ví điện tử MoMo - Đang chờ quét mã')
+        const savedOrder = await dispatchOrderNotifications(localOrder, 'Ví điện tử MoMo - Đang chờ quét mã')
+        syncOrders([savedOrder, ...useOrderStore.getState().orders.filter((o) => o.id !== localOrder.id && o.id !== savedOrder.id)])
+        setCurrentOrder(savedOrder)
 
         // Request MoMo payment transaction
         const res = await fetch('/api/payment/momo/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order }),
+          body: JSON.stringify({ order: savedOrder }),
         })
         const data = await res.json()
 
         setMomoPayData({
-          qrCodeUrl: data.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=momo_order_${order.id}`,
+          qrCodeUrl: data.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=momo_order_${savedOrder.id}`,
           payUrl: data.payUrl,
           deeplink: data.deeplink,
         })
@@ -281,6 +280,17 @@ export default function CheckoutPage() {
       paymentGateway: gateway,
       transactionId: transactionId || `TX-${Date.now()}`,
       paidAt: new Date().toISOString(),
+    }
+
+    // Sync status lên server backend PostgreSQL
+    try {
+      await fetch(`/api/orders/${encodeURIComponent(currentOrder.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'confirmed' }),
+      })
+    } catch (patchErr) {
+      console.warn('Backend payment status update notice:', patchErr)
     }
 
     // Fire telegram alert & email invoices
