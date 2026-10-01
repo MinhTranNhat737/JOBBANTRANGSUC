@@ -106,23 +106,19 @@ export default function CheckoutPage() {
 
   // Dispatch order to server repository + telegram + email notifications
   const dispatchOrderNotifications = async (order: Order, paymentNote?: string): Promise<Order> => {
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order, paymentNote }),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (data?.order) {
-          return data.order
-        }
-      }
-      return order
-    } catch (err) {
-      console.warn('Failed to send order notification:', err)
-      return order
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order, paymentNote }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      throw new Error(data?.error || 'Không thể tạo đơn hàng trên máy chủ. Vui lòng thử lại.')
     }
+    if (data?.order) {
+      return data.order
+    }
+    return order
   }
 
   // Handle Order Submit

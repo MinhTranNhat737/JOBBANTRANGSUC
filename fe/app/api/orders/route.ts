@@ -156,13 +156,16 @@ export async function POST(req: Request) {
 
     // 1. Lưu vào Backend PostgreSQL Database (Heroku) - AWAIT để đảm bảo lưu thành công
     let savedOrder: Order = order
+    let saveError: string | null = null
+
     try {
+      const numCustId = order.customerId ? parseInt(order.customerId, 10) : null
       const beRes = await fetch(`${BACKEND_API}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           code: order.id,
-          customer_id: order.customerId ? parseInt(order.customerId) : null,
+          customer_id: Number.isInteger(numCustId) ? numCustId : null,
           customer_email: order.customerEmail || null,
           payment_method: order.paymentGateway || order.paymentMethod || 'cod',
           shipping_name: order.customerName,
@@ -170,7 +173,7 @@ export async function POST(req: Request) {
           shipping_addr: order.customerAddress,
           note: order.notes,
           items: order.items.map((it: any) => ({
-            product_id: it.productId || it.id || null,
+            product_id: it.productId && !isNaN(parseInt(it.productId, 10)) ? parseInt(it.productId, 10) : null,
             slug: it.slug || '',
             name: it.name,
             image: it.image || '',
@@ -187,10 +190,16 @@ export async function POST(req: Request) {
         console.log('✅ Order saved to PostgreSQL:', savedOrder.id)
       } else {
         const errText = await beRes.text()
+        saveError = `Máy chủ lưu đơn hàng báo lỗi: ${beRes.status} - ${errText}`
         console.error('❌ Backend order save failed:', beRes.status, errText)
       }
     } catch (dbErr: any) {
+      saveError = `Không thể kết nối máy chủ lưu đơn hàng: ${dbErr.message}`
       console.error('❌ Backend order sync error:', dbErr.message)
+    }
+
+    if (saveError) {
+      return NextResponse.json({ error: saveError }, { status: 500 })
     }
 
     // 2. Bắn thông báo Telegram tức thì cho Admin

@@ -37,7 +37,7 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/orders')
+      const res = await fetch('/api/orders', { cache: 'no-store' })
       const data = await res.json()
       if (data?.orders && Array.isArray(data.orders)) {
         syncOrders(data.orders)
@@ -52,6 +52,10 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders()
+    const timer = setInterval(() => {
+      fetchOrders()
+    }, 15000)
+    return () => clearInterval(timer)
   }, [])
 
   const handleManualRefresh = () => {
