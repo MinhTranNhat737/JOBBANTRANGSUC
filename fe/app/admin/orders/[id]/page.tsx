@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admin-data'
 import type { OrderStatus } from '@/lib/admin-data'
-import { formatPrice } from '@/lib/products'
+import { formatPrice, API_BASE_URL } from '@/lib/products'
 import { useOrderStore } from '@/lib/order-store'
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -119,6 +119,15 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
   const handleStatusChange = (newStatus: OrderStatus) => {
     updateOrderStatus(order.id, newStatus, statusNote.trim() || undefined)
+    // Sync lên Backend Heroku
+    try {
+      const code = order.id.startsWith('#') ? order.id : `#${order.id}`
+      fetch(`${API_BASE_URL}/orders/${encodeURIComponent(code)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      }).catch(e => console.warn('Backend sync:', e))
+    } catch(e) {}
     setStatusNote('')
     setSuccessMsg(`Đã cập nhật đơn hàng ${order.id} sang trạng thái "${ORDER_STATUS_MAP[newStatus]?.label}"`)
     setTimeout(() => setSuccessMsg(null), 3000)

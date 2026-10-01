@@ -16,6 +16,7 @@ import {
 import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admin-data'
 import type { OrderStatus } from '@/lib/admin-data'
 import { useOrderStore } from '@/lib/order-store'
+import { API_BASE_URL } from '@/lib/products'
 
 export default function OrdersPage() {
   const { orders, syncOrders, updateOrderStatus } = useOrderStore()
@@ -42,8 +43,23 @@ export default function OrdersPage() {
       .catch((err) => console.error('Failed to sync server orders:', err))
   }, [syncOrders])
 
+  // Sync trạng thái đơn hàng lên Backend Heroku PostgreSQL
+  const syncStatusToBackend = async (orderId: string, status: string) => {
+    try {
+      const code = orderId.startsWith('#') ? orderId : `#${orderId}`
+      await fetch(`${API_BASE_URL}/orders/${encodeURIComponent(code)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+    } catch (e) {
+      console.warn('Backend status sync warning:', e)
+    }
+  }
+
   const handleQuickConfirm = (orderId: string) => {
     updateOrderStatus(orderId, 'confirmed', 'Admin đã bấm xác nhận đơn hàng')
+    syncStatusToBackend(orderId, 'confirmed')
     setActionMsg(`✓ Đã xác nhận đơn hàng ${orderId}`)
     setTimeout(() => setActionMsg(null), 3500)
   }
@@ -67,6 +83,7 @@ export default function OrdersPage() {
           'shipping',
           'Đã xuất kho thành công. Sản phẩm đã trừ tồn kho và bắt đầu giao hàng.'
         )
+        syncStatusToBackend(order.id, 'shipping')
 
         let outMsg = ''
         if (data.dispatchedProducts && Array.isArray(data.dispatchedProducts)) {
@@ -89,6 +106,7 @@ export default function OrdersPage() {
 
   const handleQuickDelivered = (orderId: string) => {
     updateOrderStatus(orderId, 'delivered', 'Admin đã kiểm tra và bấm xác nhận giao hàng thành công')
+    syncStatusToBackend(orderId, 'delivered')
     setActionMsg(`✓ Đã xác nhận đơn hàng ${orderId} đã giao thành công!`)
     setTimeout(() => setActionMsg(null), 3500)
   }
