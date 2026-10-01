@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   // Nếu chưa paid trong memory registry, kiểm tra từ Backend Express / PostgreSQL & SePay API
   if (!isPaid) {
     try {
-      const backendUrl = process.env.API_URL || 'http://localhost:3001/api'
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3001/api'
       const cleanId = orderId.replace(/^#/, '')
       const beRes = await fetch(`${backendUrl}/payment/check/${encodeURIComponent(cleanId)}`, {
         cache: 'no-store',

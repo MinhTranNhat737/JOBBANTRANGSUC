@@ -23,7 +23,8 @@ export async function POST(req: Request) {
 
     // 1b. Lưu vào Backend PostgreSQL Database
     try {
-      fetch('http://localhost:3001/api/orders', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3001/api'
+      fetch(`${apiUrl}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
