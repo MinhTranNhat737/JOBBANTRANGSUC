@@ -33,13 +33,14 @@ function RegisterForm() {
     try {
       const res = await register({ name, email, phone, address, password })
       if (res.success) {
-        router.push(redirect)
+        // Use window.location for reliable redirect after Zustand state update
+        window.location.href = redirect
       } else {
         setError(res.error || 'Đăng ký không thành công.')
+        setLoading(false)
       }
     } catch (err: any) {
       setError(err?.message || 'Có lỗi xảy ra khi tạo tài khoản.')
-    } finally {
       setLoading(false)
     }
   }

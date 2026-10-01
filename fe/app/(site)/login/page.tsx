@@ -25,13 +25,13 @@ function LoginForm() {
     try {
       const res = await login(identifier, password)
       if (res.success) {
-        router.push(redirect)
+        window.location.href = redirect
       } else {
         setError(res.error || 'Thông tin đăng nhập không chính xác.')
+        setLoading(false)
       }
     } catch (err: any) {
       setError(err?.message || 'Có lỗi xảy ra khi đăng nhập.')
-    } finally {
       setLoading(false)
     }
   }
@@ -44,7 +44,7 @@ function LoginForm() {
     try {
       const res = await login('admin', 'admin123')
       if (res.success) {
-        router.push(redirect)
+        window.location.href = redirect
       } else {
         setError(res.error || 'Không thể đăng nhập tài khoản demo')
       }
