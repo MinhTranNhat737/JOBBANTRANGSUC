@@ -58,6 +58,7 @@ export default function CheckoutPage() {
   const [simulatingPayment, setSimulatingPayment] = useState(false)
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  const isSubmittingRef = useRef(false)
 
   useEffect(() => {
     setMounted(true)
@@ -124,6 +125,8 @@ export default function CheckoutPage() {
   // Handle Order Submit
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmittingRef.current || submitting) return
+
     setError(null)
 
     if (!name.trim() || !phone.trim() || !address.trim() || !email.trim()) {
@@ -131,6 +134,7 @@ export default function CheckoutPage() {
       return
     }
 
+    isSubmittingRef.current = true
     setSubmitting(true)
 
     try {
@@ -236,6 +240,7 @@ export default function CheckoutPage() {
         return
       }
     } catch (err: any) {
+      isSubmittingRef.current = false
       setSubmitting(false)
       setError(err?.message || 'Có lỗi khi xử lý đơn hàng. Vui lòng thử lại.')
     }
@@ -289,11 +294,19 @@ export default function CheckoutPage() {
       console.warn('Backend payment status update notice:', patchErr)
     }
 
-    // Fire telegram alert & email invoices
-    await dispatchOrderNotifications(
-      updatedOrder,
-      gateway === 'sepay' ? 'SePay VietQR (Tự động)' : 'Ví MoMo API (Tự động)',
-    )
+    // Fire telegram alert & email invoices without creating a duplicate order
+    try {
+      await fetch('/api/orders/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order: updatedOrder,
+          paymentNote: gateway === 'sepay' ? 'Chuyển khoản SePay VietQR (Đã thanh toán thành công)' : 'Ví điện tử MoMo (Đã thanh toán thành công)',
+        }),
+      })
+    } catch (notifyErr) {
+      console.warn('Payment success notification notice:', notifyErr)
+    }
 
     clearCart()
     setActiveModal(null)
