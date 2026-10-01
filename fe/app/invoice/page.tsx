@@ -295,7 +295,11 @@ function InvoiceDocument() {
                       {item.image && (
                         <div className="relative size-10 shrink-0 overflow-hidden rounded border border-zinc-200 bg-zinc-100">
                           <Image
-                            src={item.image}
+                            src={
+                              item.image.startsWith('http') || item.image.startsWith('/')
+                                ? item.image
+                                : `/${item.image}`
+                            }
                             alt=""
                             fill
                             className="object-cover"

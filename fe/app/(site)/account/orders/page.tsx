@@ -124,7 +124,13 @@ export default function AccountOrdersPage() {
                       {/* Ảnh sản phẩm TO ĐẸP */}
                       <div className="relative size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl bg-zinc-900 border border-[var(--border-subtle)]">
                         <Image
-                          src={item.image || '/placeholder.svg'}
+                          src={
+                            item.image
+                              ? (item.image.startsWith('http') || item.image.startsWith('/')
+                                  ? item.image
+                                  : `/${item.image}`)
+                              : '/placeholder.svg'
+                          }
                           alt={item.name}
                           fill
                           className="object-cover"

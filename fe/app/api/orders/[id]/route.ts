@@ -3,6 +3,45 @@ import type { Order } from '@/lib/admin-data'
 
 const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3001/api'
 
+// Chuẩn hóa và tự động bổ sung ảnh sản phẩm nếu thiếu hoặc là đường dẫn tương đối
+function formatItemImageUrl(rawUrl?: string, slug?: string, name?: string): string {
+  if (rawUrl && typeof rawUrl === 'string' && rawUrl.trim() !== '') {
+    const clean = rawUrl.trim()
+    if (clean.startsWith('http://') || clean.startsWith('https://')) return clean
+    if (clean.startsWith('images/')) return `/${clean}`
+    if (!clean.startsWith('/')) return `/${clean}`
+    return clean
+  }
+
+  // Tra cứu theo mã SKU trong slug (ví dụ sp0001 -> /images/SP0001-1.jpg)
+  if (slug) {
+    const match = slug.match(/sp\d+/i)
+    if (match) {
+      const sku = match[0].toUpperCase()
+      return `/images/${sku}-1.jpg`
+    }
+  }
+
+  // Tra cứu thông minh theo tên sản phẩm nếu đơn cũ chưa lưu ảnh
+  if (name) {
+    const lower = name.toLowerCase()
+    if (lower.includes('baby fat') || lower.includes('cross')) {
+      return '/images/SP0006-1.jpg'
+    }
+    if (lower.includes('ly') || lower.includes('de lot ly')) {
+      return '/images/SP0001-1.jpg'
+    }
+    if (lower.includes('nhan') || lower.includes('ring')) {
+      return '/images/p-ring-sapphire.png'
+    }
+    if (lower.includes('day chuyen') || lower.includes('mat')) {
+      return '/images/p-pendant-lotus.png'
+    }
+  }
+
+  return '/placeholder.svg'
+}
+
 function mapBackendOrder(bo: any): Order {
   return {
     id: bo.code || `#${bo.id}`,
@@ -14,7 +53,7 @@ function mapBackendOrder(bo: any): Order {
       ? bo.items.map((it: any) => ({
           slug: it.product_slug || '',
           name: it.name || '',
-          image: it.image || '',
+          image: formatItemImageUrl(it.image, it.product_slug, it.name),
           size: it.size || '',
           quantity: it.quantity || 1,
           price: parseFloat(it.unit_price) || 0,

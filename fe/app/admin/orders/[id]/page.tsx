@@ -628,8 +628,17 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={item.image}
+                        src={
+                          item.image
+                            ? (item.image.startsWith('http') || item.image.startsWith('/')
+                                ? item.image
+                                : `/${item.image}`)
+                            : '/placeholder.svg'
+                        }
                         alt={item.name}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder.svg'
+                        }}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </div>

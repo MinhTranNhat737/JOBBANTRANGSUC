@@ -76,7 +76,13 @@ function OrderSuccessContent() {
               <div key={idx} className="flex items-center gap-4 sm:gap-5 py-4 first:pt-0 last:pb-0">
                 <div className="relative size-20 sm:size-24 shrink-0 overflow-hidden rounded-xl bg-zinc-900 border border-[var(--border-subtle)]">
                   <Image
-                    src={item.image || '/placeholder.svg'}
+                    src={
+                      item.image
+                        ? (item.image.startsWith('http') || item.image.startsWith('/')
+                            ? item.image
+                            : `/${item.image}`)
+                        : '/placeholder.svg'
+                    }
                     alt={item.name}
                     fill
                     className="object-cover"
