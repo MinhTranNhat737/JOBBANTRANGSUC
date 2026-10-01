@@ -6,10 +6,16 @@ const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'h
 // Chuẩn hóa và tự động bổ sung ảnh sản phẩm nếu thiếu hoặc là đường dẫn tương đối
 function formatItemImageUrl(rawUrl?: string, slug?: string, name?: string): string {
   if (rawUrl && typeof rawUrl === 'string' && rawUrl.trim() !== '') {
-    const clean = rawUrl.trim()
-    if (clean.startsWith('http://') || clean.startsWith('https://')) return clean
-    if (clean.startsWith('images/')) return `/${clean}`
-    if (!clean.startsWith('/')) return `/${clean}`
+    let clean = rawUrl.trim()
+    if (clean.startsWith('images/')) clean = `/${clean}`
+    else if (!clean.startsWith('/') && !clean.startsWith('http')) clean = `/${clean}`
+
+    // Chuẩn hóa nếu ảnh truyền dạng /images/products/sp0014.jpg sang /images/SP0014-1.jpg
+    const matchSku = clean.match(/sp\d+/i)
+    if (matchSku && (clean.includes('products/') || clean.includes('/sp'))) {
+      return `/images/${matchSku[0].toUpperCase()}-1.jpg`
+    }
+
     return clean
   }
 
