@@ -21,6 +21,7 @@ import {
   Tag,
 } from 'lucide-react'
 import { API_BASE_URL } from '@/lib/products'
+import { fetchWithAuth } from '@/lib/api'
 
 export const CATEGORIES = [
   { id: 1, name: 'Nhẫn', slug: 'nhan' },
@@ -313,7 +314,7 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
       const formData = new FormData()
       Array.from(files).forEach((f) => formData.append('files', f))
 
-      const res = await fetch('/api/upload', {
+      const res = await fetchWithAuth('/api/upload', {
         method: 'POST',
         body: formData,
       })
@@ -433,7 +434,7 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
       }
 
       const targetId = productId || rawSlug
-      const res = await fetch(`${API_BASE_URL}/products/${targetId}`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/products/${targetId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -648,9 +649,9 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
             {/* Lưu ý kích thước & độ phân giải lý tưởng */}
             <div
               style={{
-                background: 'rgba(212, 175, 55, 0.05)',
-                border: '1px solid rgba(212, 175, 55, 0.25)',
-                borderRadius: 10,
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: 0,
                 padding: '12px 14px',
                 marginBottom: 16,
                 fontSize: 12,
@@ -719,7 +720,7 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
                         overflow: 'hidden',
                         border: img.is_primary ? '2px solid var(--admin-gold)' : '1px solid var(--admin-border)',
                         background: '#121215',
-                        boxShadow: img.is_primary ? '0 0 12px rgba(212, 175, 55, 0.25)' : undefined,
+                        boxShadow: img.is_primary ? '0 0 12px rgba(255, 255, 255, 0.2)' : undefined,
                       }}
                     >
                       <div style={{ width: '100%', height: 120, overflow: 'hidden' }}>
@@ -854,8 +855,8 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
                 onClick={() => document.getElementById('edit-product-file-input')?.click()}
                 style={{
                   border: isDragging ? '2px dashed var(--admin-gold)' : '2px dashed var(--admin-border)',
-                  background: isDragging ? 'rgba(212, 175, 55, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-                  borderRadius: 12,
+                  background: isDragging ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: 0,
                   padding: '24px 16px',
                   textAlign: 'center',
                   cursor: 'pointer',
@@ -1086,10 +1087,10 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
                       onClick={() => toggleSize(s)}
                       style={{
                         padding: '7px 14px',
-                        borderRadius: 8,
+                        borderRadius: 0,
                         border: isSelected ? '1.5px solid var(--admin-gold)' : '1px solid var(--admin-border)',
                         background: isSelected
-                          ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%)'
+                          ? 'rgba(255, 255, 255, 0.16)'
                           : 'var(--admin-surface-elevated)',
                         color: isSelected ? 'var(--admin-gold)' : 'var(--admin-text-secondary)',
                         fontSize: 13,
@@ -1099,7 +1100,7 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 6,
-                        boxShadow: isSelected ? '0 0 10px rgba(212, 175, 55, 0.2)' : 'none',
+                        boxShadow: 'none',
                       }}
                     >
                       {isSelected && <Check size={13} style={{ strokeWidth: 3 }} />}
@@ -1169,9 +1170,9 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
                         alignItems: 'center',
                         gap: 6,
                         padding: '4px 10px',
-                        borderRadius: 6,
-                        background: 'rgba(212, 175, 55, 0.15)',
-                        border: '1px solid var(--admin-gold)',
+                        borderRadius: 0,
+                        background: 'rgba(255, 255, 255, 0.12)',
+                        border: '1px solid var(--admin-border-strong)',
                         color: 'var(--admin-gold)',
                         fontSize: 12.5,
                         fontWeight: 600,

@@ -18,6 +18,7 @@ import {
 import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admin-data'
 import type { OrderStatus } from '@/lib/admin-data'
 import { useOrderStore } from '@/lib/order-store'
+import { fetchWithAuth } from '@/lib/api'
 
 export default function OrdersPage() {
   const { orders, syncOrders, updateOrderStatus } = useOrderStore()
@@ -37,7 +38,7 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/orders', { cache: 'no-store' })
+      const res = await fetchWithAuth('/api/orders', { cache: 'no-store' })
       const data = await res.json()
       if (data?.orders && Array.isArray(data.orders)) {
         syncOrders(data.orders)
@@ -67,7 +68,7 @@ export default function OrdersPage() {
   const syncStatusToBackend = async (orderId: string, status: string) => {
     try {
       const code = orderId.startsWith('#') ? orderId : `#${orderId}`
-      await fetch(`/api/orders/${encodeURIComponent(code)}`, {
+      await fetchWithAuth(`/api/orders/${encodeURIComponent(code)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -87,7 +88,7 @@ export default function OrdersPage() {
   const handleQuickDispatch = async (order: any) => {
     setProcessingId(order.id)
     try {
-      const res = await fetch('/api/inventory/dispatch', {
+      const res = await fetchWithAuth('/api/inventory/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -339,7 +340,7 @@ export default function OrdersPage() {
                 <tr>
                   <td colSpan={9} style={{ textAlign: 'center', padding: '48px 0', color: 'var(--admin-text-secondary)' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                      <Loader2 className="animate-spin text-amber-400" size={28} />
+                      <Loader2 className="animate-spin text-white" size={28} />
                       <span style={{ fontSize: 13 }}>Đang đồng bộ đơn hàng từ máy chủ...</span>
                     </div>
                   </td>

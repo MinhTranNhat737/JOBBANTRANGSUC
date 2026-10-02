@@ -70,7 +70,7 @@ function mapBackendOrder(bo: any): Order {
       : [],
     total: parseFloat(bo.total_amount) || 0,
     shippingFee: 0,
-    status: bo.status || 'pending',
+    status: bo.status === 'paid' ? 'confirmed' : (bo.status || 'pending'),
     createdAt: bo.created_at || new Date().toISOString(),
     timeline: [
       {
@@ -80,15 +80,22 @@ function mapBackendOrder(bo: any): Order {
       },
     ],
     notes: bo.note || '',
-    paymentMethod: bo.payment_method || 'cod',
+    paymentMethod: String(bo.payment_method || '').toLowerCase() === 'sepay'
+      ? 'Chuyển khoản SePay (VietQR)'
+      : String(bo.payment_method || '').toLowerCase() === 'momo'
+        ? 'Ví MoMo'
+        : (bo.payment_method || 'Tiền mặt khi nhận hàng (COD)'),
     customerId: bo.customer_id ? String(bo.customer_id) : undefined,
-    paymentStatus: bo.status === 'confirmed' || bo.status === 'delivered' || bo.status === 'shipping' || bo.status === 'paid' ? 'paid' : 'pending',
-    paymentGateway: (bo.payment_method as any) || 'cod',
+    paymentStatus: bo.payment_status === 'paid' || bo.status === 'paid' ? 'paid' : 'pending',
+    paymentGateway: bo.payment_gateway || (String(bo.payment_method || '').toLowerCase().includes('sepay') ? 'sepay' : String(bo.payment_method || '').toLowerCase().includes('momo') ? 'momo' : 'cod'),
+    transactionId: bo.transaction_id || undefined,
+    paidAt: bo.paid_at || undefined,
   }
 }
 
 export async function GET(req: Request) {
   try {
+    const authorization = req.headers.get('authorization') || ''
     const url = new URL(req.url)
     const codeParam = url.searchParams.get('id') || url.searchParams.get('code')
 
@@ -121,11 +128,13 @@ export async function GET(req: Request) {
 
     const beRes = await fetch(`${BACKEND_API}/orders?${params.toString()}`, {
       cache: 'no-store',
+      headers: { Authorization: authorization },
     })
 
     if (!beRes.ok) {
       console.error('Backend orders fetch failed:', beRes.status)
-      return NextResponse.json({ orders: [], pagination: { total: 0 } })
+      const error = await beRes.json().catch(() => ({ error: 'Không thể tải đơn hàng từ backend' }))
+      return NextResponse.json(error, { status: beRes.status })
     }
 
     const data = await beRes.json()
@@ -141,7 +150,7 @@ export async function GET(req: Request) {
     })
   } catch (err: any) {
     console.error('GET /api/orders error:', err)
-    return NextResponse.json({ orders: [], pagination: { total: 0 } })
+    return NextResponse.json({ error: err?.message || 'Lỗi kết nối API đơn hàng' }, { status: 500 })
   }
 }
 

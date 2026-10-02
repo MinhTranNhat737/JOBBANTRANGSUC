@@ -26,7 +26,7 @@ export function UserNav() {
   }, [])
 
   if (!mounted) {
-    return <div className="h-10 w-24 animate-pulse rounded-full bg-zinc-800/20" />
+    return <div className="h-10 w-24 animate-pulse rounded-none bg-zinc-800/20" />
   }
 
   // ── GUEST STATE (Chưa đăng nhập) ───────────────────────────────────
@@ -36,7 +36,7 @@ export function UserNav() {
       <div className="flex items-center gap-2">
         <Link
           href="/login"
-          className="inline-flex items-center justify-center rounded-full border border-white/20 bg-transparent px-5 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-[13px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)] transition-all duration-300 hover:border-white hover:bg-white hover:text-black active:scale-95 shadow-sm"
+          className="inline-flex items-center justify-center rounded-none border border-white/20 bg-transparent px-5 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-[13px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)] transition-all duration-300 hover:border-white hover:bg-white hover:text-black active:scale-95 shadow-sm"
         >
           Đăng nhập
         </Link>
@@ -62,13 +62,13 @@ export function UserNav() {
         type="button"
         onClick={() => setMenuOpen((v) => !v)}
         className={cn(
-          'flex items-center gap-2.5 rounded-full border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 transition-all duration-200 hover:border-white hover:bg-white/5 active:scale-95',
+          'flex items-center gap-2.5 rounded-none border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 transition-all duration-200 hover:border-white hover:bg-white/5 active:scale-95',
           menuOpen && 'border-white bg-white/10',
         )}
         aria-label="Tài khoản cá nhân"
         aria-expanded={menuOpen}
       >
-        <div className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-white font-display text-xs font-bold text-black shadow">
+        <div className="flex size-7 sm:size-8 items-center justify-center rounded-none bg-white font-display text-xs font-bold text-black shadow">
           {initials}
         </div>
         <span className="text-xs sm:text-sm font-semibold tracking-wider text-[var(--text-primary)] uppercase">
@@ -81,7 +81,7 @@ export function UserNav() {
       </button>
 
       {menuOpen && (
-        <div className="absolute right-0 top-full mt-3 w-64 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 top-full mt-3 w-64 rounded-none border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
           <div className="px-3 py-2.5 border-b border-[var(--border-subtle)] mb-1">
             <p className="font-semibold text-sm text-[var(--text-primary)] truncate">{customer.name}</p>
             <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{customer.email}</p>
@@ -91,21 +91,21 @@ export function UserNav() {
             <Link
               href="/account"
               onClick={() => setMenuOpen(false)}
-              className="flex w-full items-center rounded-xl px-3 py-2.5 text-xs sm:text-[13px] font-medium tracking-wide text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-white transition-colors"
+              className="flex w-full items-center rounded-none px-3 py-2.5 text-xs sm:text-[13px] font-medium tracking-wide text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-white transition-colors"
             >
               Hồ sơ cá nhân
             </Link>
             <Link
               href="/account/orders"
               onClick={() => setMenuOpen(false)}
-              className="flex w-full items-center rounded-xl px-3 py-2.5 text-xs sm:text-[13px] font-medium tracking-wide text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-white transition-colors"
+              className="flex w-full items-center rounded-none px-3 py-2.5 text-xs sm:text-[13px] font-medium tracking-wide text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-white transition-colors"
             >
               Đơn hàng của tôi
             </Link>
             <Link
               href="/tracking"
               onClick={() => setMenuOpen(false)}
-              className="flex w-full items-center rounded-xl px-3 py-2.5 text-xs sm:text-[13px] font-medium tracking-wide text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-white transition-colors"
+              className="flex w-full items-center rounded-none px-3 py-2.5 text-xs sm:text-[13px] font-medium tracking-wide text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-white transition-colors"
             >
               Tra cứu đơn hàng
             </Link>
@@ -119,7 +119,7 @@ export function UserNav() {
                 setMenuOpen(false)
                 router.push('/')
               }}
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs sm:text-[13px] font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
+              className="flex w-full items-center gap-2 rounded-none px-3 py-2 text-xs sm:text-[13px] font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
             >
               <LogOut className="size-4" />
               <span>Đăng xuất</span>

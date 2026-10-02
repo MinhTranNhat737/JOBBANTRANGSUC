@@ -1,21 +1,44 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Package, LogOut } from 'lucide-react'
+import { Check, Package, LogOut, Loader2 } from 'lucide-react'
 import { useCustomer } from '@/lib/customer-store'
 import { useOrderStore } from '@/lib/order-store'
 
 export default function AccountPage() {
   const router = useRouter()
-  const { customer, updateProfile, logout } = useCustomer()
-  const orders = useOrderStore((s) => s.orders)
+  const { customer, token, updateProfile, refreshProfile, logout } = useCustomer()
+  const { orders, syncOrders } = useOrderStore()
 
   const [name, setName] = useState(customer?.name || '')
   const [phone, setPhone] = useState(customer?.phone || '')
   const [address, setAddress] = useState(customer?.address || '')
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  // Đồng bộ lại form khi customer được hydrate từ localStorage hoặc sau khi đăng nhập
+  useEffect(() => {
+    if (customer) {
+      setName(customer.name || '')
+      setPhone(customer.phone || '')
+      setAddress(customer.address || '')
+    }
+  }, [customer?.name, customer?.phone, customer?.address])
+
+  // Tự động tải lại thông tin mới nhất từ cơ sở dữ liệu khi mở trang
+  useEffect(() => {
+    void refreshProfile()
+  }, [])
+
+  useEffect(() => {
+    if (!token) return
+    fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error(`Không thể tải đơn hàng (${response.status})`)))
+      .then((data) => { if (Array.isArray(data.orders)) syncOrders(data.orders) })
+      .catch((error) => console.warn('Order history sync error:', error))
+  }, [token, syncOrders])
 
   if (!customer) {
     return (
@@ -30,13 +53,13 @@ export default function AccountPage() {
           <div className="flex justify-center gap-4">
             <Link
               href="/login"
-              className="rounded-full bg-white text-black px-8 py-3 text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-colors shadow"
+              className="rounded-none bg-white text-black px-8 py-3 text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-colors shadow"
             >
               Đăng nhập
             </Link>
             <Link
               href="/register"
-              className="rounded-full border border-white/20 px-8 py-3 text-xs font-semibold uppercase tracking-wider text-white hover:border-white transition-colors"
+              className="rounded-none border border-white/20 px-8 py-3 text-xs font-semibold uppercase tracking-wider text-white hover:border-white transition-colors"
             >
               Đăng ký
             </Link>
@@ -53,9 +76,11 @@ export default function AccountPage() {
       o.customerPhone.replace(/\s+/g, '') === customer.phone.replace(/\s+/g, ''),
   )
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    updateProfile({ name, phone, address })
+    setSaving(true)
+    await updateProfile({ name, phone, address })
+    setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -77,7 +102,7 @@ export default function AccountPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/account/orders"
-            className="flex items-center gap-2 rounded-full border border-white/20 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)] hover:border-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-2 rounded-none border border-white/20 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)] hover:border-white hover:bg-white/5 transition-all"
           >
             <Package className="size-3.5 text-white" />
             <span>Đơn hàng ({customerOrders.length})</span>
@@ -88,7 +113,7 @@ export default function AccountPage() {
               logout()
               router.push('/')
             }}
-            className="rounded-full px-4 py-2.5 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
+            className="rounded-none px-4 py-2.5 text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition-colors"
           >
             Đăng xuất
           </button>
@@ -96,7 +121,7 @@ export default function AccountPage() {
       </div>
 
       {saved && (
-        <div className="mb-8 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 py-3 px-4 text-xs font-semibold text-emerald-400">
+        <div className="mb-8 flex items-center justify-center gap-2 rounded-none bg-emerald-500/10 border border-emerald-500/20 py-3 px-4 text-xs font-semibold text-emerald-400">
           <Check className="size-4" />
           <span>Đã lưu cập nhật thông tin thành công!</span>
         </div>
@@ -147,13 +172,15 @@ export default function AccountPage() {
           />
         </div>
 
-        {/* Nút LƯU THAY ĐỔI: Chữ đen nền trắng rõ ràng 100% */}
+        {/* Nút LƯU THAY ĐỔI: Chữ đen nền trắng hình chữ nhật sắc cạnh */}
         <div className="pt-4">
           <button
             type="submit"
-            className="inline-flex items-center justify-center rounded-full bg-white text-black px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 active:scale-[0.98] transition-all shadow-lg cursor-pointer"
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 rounded-none bg-white text-black px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 active:scale-[0.98] transition-all shadow-lg cursor-pointer disabled:opacity-50"
           >
-            Lưu thay đổi
+            {saving && <Loader2 className="size-3.5 animate-spin text-black" />}
+            <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
           </button>
         </div>
       </form>

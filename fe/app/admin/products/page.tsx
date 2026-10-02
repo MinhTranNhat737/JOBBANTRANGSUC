@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Plus, Search, LayoutGrid, LayoutList, Pencil, Trash2, RefreshCw } from 'lucide-react'
 import { formatPrice, getProducts, API_BASE_URL } from '@/lib/products'
 import type { Product, Category } from '@/lib/products'
+import { fetchWithAuth } from '@/lib/api'
 
 const CATEGORY_LABELS: Record<string, string> = {
   all: 'Tất cả danh mục',
@@ -62,7 +63,7 @@ export default function ProductsPage() {
     if (p.id) {
       setDeletingId(p.id)
       try {
-        const res = await fetch(`${API_BASE_URL}/products/${p.id}`, { method: 'DELETE' })
+        const res = await fetchWithAuth(`${API_BASE_URL}/products/${p.id}`, { method: 'DELETE' })
         if (!res.ok) throw new Error('Không thể xóa trên server')
         setProducts((prev) => prev.filter((item) => item.id !== p.id))
       } catch (err: any) {

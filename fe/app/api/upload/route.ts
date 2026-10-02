@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs'
+import { isAdminRequest } from '@/lib/server-auth'
 
 export async function POST(req: Request) {
   try {
+    if (!(await isAdminRequest(req))) return NextResponse.json({ error: 'Không có quyền quản trị' }, { status: 401 })
     const formData = await req.formData()
     const files = formData.getAll('files') as File[]
 

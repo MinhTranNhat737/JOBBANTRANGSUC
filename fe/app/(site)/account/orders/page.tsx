@@ -10,21 +10,22 @@ import { ORDER_STATUS_MAP, formatDateTime } from '@/lib/admin-data'
 import { formatPrice } from '@/lib/products'
 
 export default function AccountOrdersPage() {
-  const { customer } = useCustomer()
+  const { customer, token } = useCustomer()
   const { orders, syncOrders, getOrdersForCustomer } = useOrderStore()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    fetch('/api/orders')
-      .then((res) => res.json())
+    if (!token) return
+    fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
+      .then((res) => res.ok ? res.json() : Promise.reject(new Error(`Không thể tải đơn hàng (${res.status})`)))
       .then((data) => {
         if (data?.orders && Array.isArray(data.orders)) {
           syncOrders(data.orders)
         }
       })
       .catch((err) => console.error(err))
-  }, [syncOrders])
+  }, [syncOrders, token])
 
   if (!mounted) {
     return (
@@ -36,7 +37,7 @@ export default function AccountOrdersPage() {
 
   const customerOrders = customer
     ? getOrdersForCustomer(customer.id, customer.email, customer.phone)
-    : orders.slice(0, 5) // Fallback for guest testing
+    : []
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10 sm:py-16">

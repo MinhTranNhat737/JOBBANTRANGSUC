@@ -19,6 +19,7 @@ import { ORDER_STATUS_MAP, formatCompactPrice, formatDateTime } from '@/lib/admi
 import type { OrderStatus, Order } from '@/lib/admin-data'
 import { formatPrice, API_BASE_URL } from '@/lib/products'
 import { useOrderStore } from '@/lib/order-store'
+import { fetchWithAuth } from '@/lib/api'
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -42,10 +43,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   )
 
   useEffect(() => {
-    fetch(`/api/orders/${encodeURIComponent(cleanId)}`)
+    fetchWithAuth(`/api/orders/${encodeURIComponent(cleanId)}`)
       .then((res) => {
         if (res.ok) return res.json()
-        return fetch(`/api/orders?id=${encodeURIComponent(cleanId)}`).then((r) => r.json())
+        return fetchWithAuth(`/api/orders?id=${encodeURIComponent(cleanId)}`).then((r) => r.json())
       })
       .then((data) => {
         if (data?.order) {
@@ -61,7 +62,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     if (!order) return
     setIsDispatching(true)
     try {
-      const res = await fetch('/api/inventory/dispatch', {
+      const res = await fetchWithAuth('/api/inventory/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +104,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 12 }}>
-        <Loader2 className="animate-spin text-amber-400" size={32} />
+        <Loader2 className="animate-spin text-white" size={32} />
         <p style={{ color: 'var(--admin-text-secondary)', fontSize: 13, letterSpacing: '0.05em' }}>
           Đang tải thông tin đơn hàng {normalized}...
         </p>
@@ -152,7 +153,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     // Sync lên Backend Heroku
     try {
       const code = order.id.startsWith('#') ? order.id : `#${order.id}`
-      fetch(`${API_BASE_URL}/orders/${encodeURIComponent(code)}/status`, {
+      fetchWithAuth(`${API_BASE_URL}/orders/${encodeURIComponent(code)}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -167,7 +168,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const handleResendNotifications = async () => {
     setIsResending(true)
     try {
-      const res = await fetch('/api/orders/notify', {
+      const res = await fetchWithAuth('/api/orders/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -19,6 +19,7 @@ import {
   Package,
 } from 'lucide-react'
 import { formatPrice, API_BASE_URL } from '@/lib/products'
+import { fetchWithAuth } from '@/lib/api'
 
 type InventoryLog = {
   id: number
@@ -67,7 +68,7 @@ export default function InventoryPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/inventory', { cache: 'no-store' })
+      const res = await fetchWithAuth('/api/inventory', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         if (data.products && Array.isArray(data.products)) {
@@ -85,7 +86,7 @@ export default function InventoryPage() {
         }
       }
 
-      const logRes = await fetch('/api/inventory/logs', { cache: 'no-store' })
+      const logRes = await fetchWithAuth('/api/inventory/logs', { cache: 'no-store' })
       if (logRes.ok) {
         const logData = await logRes.json()
         if (logData.logs) {
@@ -196,7 +197,7 @@ export default function InventoryPage() {
         newQuantity = Math.max(0, adjustAmount)
       }
 
-      const res = await fetch('/api/inventory/adjust', {
+      const res = await fetchWithAuth('/api/inventory/adjust', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -214,7 +215,8 @@ export default function InventoryPage() {
         setModalOpen(false)
         loadData()
       } else {
-        setNotification('Lỗi khi cập nhật tồn kho.')
+        const data = await res.json().catch(() => ({}))
+        setNotification(`Lỗi: ${data.error || 'Không thể cập nhật tồn kho'}`)
       }
     } catch (err: any) {
       setNotification(`Lỗi kết nối: ${err.message}`)
@@ -257,10 +259,10 @@ export default function InventoryPage() {
         <div
           style={{
             padding: '12px 18px',
-            background: 'rgba(34, 197, 94, 0.15)',
-            border: '1px solid rgba(34, 197, 94, 0.4)',
+            background: notification.startsWith('Lỗi') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+            border: notification.startsWith('Lỗi') ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(34, 197, 94, 0.4)',
             borderRadius: 10,
-            color: '#4ade80',
+            color: notification.startsWith('Lỗi') ? '#f87171' : '#4ade80',
             fontSize: 13,
             fontWeight: 500,
             marginBottom: 20,
@@ -269,7 +271,7 @@ export default function InventoryPage() {
             gap: 10,
           }}
         >
-          <CheckCircle2 size={18} /> {notification}
+          {notification.startsWith('Lỗi') ? <XCircle size={18} /> : <CheckCircle2 size={18} />} {notification}
         </div>
       )}
 

@@ -16,14 +16,18 @@ export async function POST(req: Request) {
     try {
       const beRes = await fetch(`${API_BASE_URL}/inventory/dispatch`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: req.headers.get('authorization') || '' },
         body: JSON.stringify(body),
       })
       if (beRes.ok) {
         backendResult = await beRes.json()
+      } else {
+        const error = await beRes.json().catch(() => ({ error: 'Không thể xuất kho trên backend' }))
+        return NextResponse.json(error, { status: beRes.status })
       }
     } catch (e: any) {
       console.warn('Backend inventory dispatch call warning:', e.message)
+      return NextResponse.json({ error: `Không thể kết nối backend kho: ${e.message}` }, { status: 502 })
     }
 
     // 2. Cập nhật trạng thái đơn hàng trên Next.js Server repo thành "shipping"

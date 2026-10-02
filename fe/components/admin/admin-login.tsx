@@ -8,14 +8,15 @@ export function AdminLogin() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    const ok = login(email, password)
-    if (!ok) {
-      setError('Email hoặc mật khẩu không đúng')
-    }
+    setLoading(true)
+    const result = await login(email, password)
+    if (!result.success) setError(result.error || 'Email hoặc mật khẩu không đúng')
+    setLoading(false)
   }
 
   return (
@@ -54,15 +55,13 @@ export function AdminLogin() {
 
           <button
             type="submit"
+            disabled={loading}
             className="admin-btn admin-btn-primary"
             style={{ width: '100%', justifyContent: 'center', marginTop: 20, height: 44, fontSize: 14, fontWeight: 600 }}
           >
-            Đăng nhập
+            {loading ? 'Đang xác thực...' : 'Đăng nhập'}
           </button>
 
-          <p style={{ marginTop: 16, fontSize: 12, color: 'var(--admin-text-muted)', textAlign: 'center' }}>
-            Demo: admin@legend.vn / legend2024
-          </p>
         </form>
       </div>
     </div>

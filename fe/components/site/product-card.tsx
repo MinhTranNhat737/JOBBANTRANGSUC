@@ -12,12 +12,16 @@ export function ProductCard({ product, priority = false }: { product: Product; p
   const [mounted, setMounted] = useState(false)
   const wished = useShop((s) => s.wishlist.includes(product.slug))
   const toggleWishlist = useShop((s) => s.toggleWishlist)
+  const syncWishlist = useShop((s) => s.syncWishlist)
   const soldOut = product.stock === 0
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    void syncWishlist()
+  }, [syncWishlist])
 
   return (
-    <article className="group relative overflow-hidden rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-colors">
+    <article className="group relative overflow-hidden rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-colors">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden">
           <Image
@@ -36,7 +40,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
           {(product.badge || soldOut) && (
             <span
               className={cn(
-                'absolute left-3 top-3 z-10 rounded-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
+                'absolute left-3 top-3 z-10 rounded-none px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
                 soldOut
                   ? 'bg-black/70 text-zinc-400 backdrop-blur-sm'
                   : 'bg-[var(--badge-bg)] text-[var(--badge-text)] shadow-sm',
@@ -72,7 +76,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         onClick={() => toggleWishlist(product.slug)}
         aria-pressed={mounted && wished}
         aria-label={mounted && wished ? `Bỏ ${product.name} khỏi yêu thích` : `Thêm ${product.name} vào yêu thích`}
-        className="absolute right-3 top-3 z-20 flex size-8 items-center justify-center rounded-full bg-black/40 text-white/70 opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-black/60 hover:text-white group-hover:opacity-100"
+        className="absolute right-3 top-3 z-20 flex size-8 items-center justify-center rounded-none bg-black/40 text-white/70 opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-black/60 hover:text-white group-hover:opacity-100"
       >
         <Heart className={cn('size-4', mounted && wished && 'fill-white text-white')} />
       </button>

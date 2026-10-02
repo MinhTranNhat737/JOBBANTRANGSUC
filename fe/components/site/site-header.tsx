@@ -52,7 +52,7 @@ function LanguageSelector({ className }: { className?: string }) {
       <button
         type="button"
         onClick={() => setDropdownOpen((v) => !v)}
-        className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]"
+        className="flex items-center gap-1 rounded-none px-2.5 py-1.5 text-xs uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]"
         aria-label="Chọn ngôn ngữ / Select language"
       >
         <span className="font-semibold">{currentLang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
@@ -66,7 +66,7 @@ function LanguageSelector({ className }: { className?: string }) {
       </button>
 
       {dropdownOpen && (
-        <div className="absolute right-0 top-full mt-2 w-36 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-1.5 shadow-2xl backdrop-blur-xl z-50">
+        <div className="absolute right-0 top-full mt-2 w-36 rounded-none border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-1.5 shadow-2xl backdrop-blur-xl z-50">
           <button
             type="button"
             onClick={() => {
@@ -74,7 +74,7 @@ function LanguageSelector({ className }: { className?: string }) {
               setDropdownOpen(false)
             }}
             className={cn(
-              'flex w-full items-center justify-between rounded px-3 py-2 text-xs uppercase tracking-wider transition-colors',
+              'flex w-full items-center justify-between rounded-none px-3 py-2 text-xs uppercase tracking-wider transition-colors',
               currentLang === 'vi'
                 ? 'bg-[var(--hover-bg)] font-bold text-[var(--text-primary)]'
                 : 'text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]',
@@ -90,7 +90,7 @@ function LanguageSelector({ className }: { className?: string }) {
               setDropdownOpen(false)
             }}
             className={cn(
-              'flex w-full items-center justify-between rounded px-3 py-2 text-xs uppercase tracking-wider transition-colors',
+              'flex w-full items-center justify-between rounded-none px-3 py-2 text-xs uppercase tracking-wider transition-colors',
               currentLang === 'en'
                 ? 'bg-[var(--hover-bg)] font-bold text-[var(--text-primary)]'
                 : 'text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]',
@@ -116,7 +116,7 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="group relative flex size-10 sm:size-11 items-center justify-center rounded-full text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95"
+      className="group relative flex size-10 sm:size-11 items-center justify-center rounded-none text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95"
       aria-label={isDark ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
     >
       <Sun
@@ -240,7 +240,7 @@ function MobileNavLinks({
           onClose()
           onOpenSearch()
         }}
-        className="flex items-center gap-3 w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2.5 text-xs text-[var(--text-muted)] transition-all hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
+        className="flex items-center gap-3 w-full rounded-none border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2.5 text-xs text-[var(--text-muted)] transition-all hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
       >
         <Search className="size-4 text-[var(--text-primary)] shrink-0" />
         <span className="truncate">{t.header.search} (nhẫn, dây chuyền, Chrome Hearts)...</span>
@@ -266,14 +266,14 @@ function MobileNavLinks({
                 <Link
                   href="/account"
                   onClick={onClose}
-                  className="flex items-center justify-center rounded-full border border-white/20 py-3 text-xs font-bold uppercase tracking-wider text-white hover:border-white transition-colors"
+                  className="flex items-center justify-center rounded-none border border-white/20 py-3 text-xs font-bold uppercase tracking-wider text-white hover:border-white transition-colors"
                 >
                   Hồ sơ
                 </Link>
                 <Link
                   href="/account/orders"
                   onClick={onClose}
-                  className="flex items-center justify-center rounded-full border border-white/20 py-3 text-xs font-bold uppercase tracking-wider text-white hover:border-white transition-colors"
+                  className="flex items-center justify-center rounded-none border border-white/20 py-3 text-xs font-bold uppercase tracking-wider text-white hover:border-white transition-colors"
                 >
                   Đơn hàng
                 </Link>
@@ -294,14 +294,14 @@ function MobileNavLinks({
               <Link
                 href="/login"
                 onClick={onClose}
-                className="flex w-full items-center justify-center rounded-full bg-white py-3.5 text-xs font-bold uppercase tracking-[0.25em] text-black shadow hover:bg-zinc-200 transition-colors"
+                className="flex w-full items-center justify-center rounded-none bg-white py-3.5 text-xs font-bold uppercase tracking-[0.25em] text-black shadow hover:bg-zinc-200 transition-colors"
               >
                 Đăng nhập
               </Link>
               <Link
                 href="/register"
                 onClick={onClose}
-                className="flex w-full items-center justify-center rounded-full border border-[var(--border-strong)] py-3.5 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--text-secondary)] hover:text-white hover:border-white"
+                className="flex w-full items-center justify-center rounded-none border border-[var(--border-strong)] py-3.5 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--text-secondary)] hover:text-white hover:border-white"
               >
                 Tạo tài khoản mới
               </Link>
@@ -483,7 +483,7 @@ export function SiteHeader() {
         <div className="flex flex-1 items-center justify-start min-w-0">
           <button
             type="button"
-            className="-ml-2 group flex size-10 items-center justify-center rounded-full text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95 lg:hidden"
+            className="-ml-2 group flex size-10 items-center justify-center rounded-none text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95 lg:hidden"
             aria-label={open ? 'Đóng menu' : 'Mở menu'}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -542,7 +542,7 @@ export function SiteHeader() {
             href="/tracking"
             title="Tra cứu đơn hàng"
             aria-label="Tra cứu đơn hàng"
-            className="group relative flex size-10 items-center justify-center rounded-full text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95"
+            className="group relative flex size-10 items-center justify-center rounded-none text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95"
           >
             <Package className="size-5 text-[var(--text-primary)] transition-transform duration-200 group-hover:scale-110" strokeWidth={2} />
           </Link>
@@ -561,7 +561,7 @@ export function SiteHeader() {
           {/* Giỏ hàng */}
           <button
             type="button"
-            className="group relative flex size-10 items-center justify-center rounded-full text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95"
+            className="group relative flex size-10 items-center justify-center rounded-none text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95"
             aria-label={`${t.header.cart}, ${mounted ? count : 0}`}
             onClick={() => setCartOpen(true)}
           >
@@ -727,7 +727,7 @@ function IconButton({
       onClick={onClick}
       aria-label={label}
       className={cn(
-        'group flex size-10 sm:size-11 items-center justify-center rounded-full text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95',
+        'group flex size-10 sm:size-11 items-center justify-center rounded-none text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--hover-bg)] active:scale-95',
         className,
       )}
     >
@@ -738,7 +738,7 @@ function IconButton({
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-[var(--badge-bg)] text-[9px] font-black text-[var(--badge-text)] shadow-md ring-1 ring-[var(--border-subtle)]">
+    <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-none bg-[var(--badge-bg)] text-[9px] font-black text-[var(--badge-text)] shadow-md ring-1 ring-[var(--border-subtle)]">
       {children}
     </span>
   )

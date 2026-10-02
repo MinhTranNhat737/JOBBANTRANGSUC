@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     const queryStr = searchParams.toString()
     const backendUrl = `${API_BASE_URL}/inventory${queryStr ? `?${queryStr}` : ''}`
 
-    const beRes = await fetch(backendUrl, { cache: 'no-store' })
+    const beRes = await fetch(backendUrl, { cache: 'no-store', headers: { Authorization: req.headers.get('authorization') || '' } })
     if (beRes.ok) {
       const data = await beRes.json()
       return NextResponse.json(data)

@@ -3,6 +3,7 @@
 import { formatCompactPrice, formatDate } from '@/lib/admin-data'
 import { Search } from 'lucide-react'
 import { useState, useMemo, useEffect } from 'react'
+import { fetchWithAuth } from '@/lib/api'
 
 export type CustomerItem = {
   id: string
@@ -20,7 +21,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/customers')
+    fetchWithAuth('/api/customers?limit=200')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && Array.isArray(data.customers)) {

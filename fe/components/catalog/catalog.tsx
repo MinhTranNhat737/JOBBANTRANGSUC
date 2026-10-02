@@ -48,6 +48,7 @@ export function Catalog({ products }: { products: Product[] }) {
   const [searchQuery, setSearchQuery] = useState(searchParam)
   const { lang } = useLanguage()
   const [mounted, setMounted] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(12)
   useEffect(() => setMounted(true), [])
 
   // Đồng bộ ô tìm kiếm khi URL thay đổi (ví dụ bấm từ Navbar Search)
@@ -165,6 +166,10 @@ export function Catalog({ products }: { products: Product[] }) {
     return filtered
   }, [products, searchParam, category, sort, priceParam, availParam, badgeParam])
 
+  useEffect(() => setVisibleCount(12), [searchParam, category, sort, priceParam, availParam, badgeParam])
+
+  const paginated = visible.slice(0, visibleCount)
+
   // Khóa scroll khi mở drawer bên trái
   useEffect(() => {
     if (isFilterOpen) {
@@ -224,9 +229,9 @@ export function Catalog({ products }: { products: Product[] }) {
                 e.preventDefault()
                 handleSearchSubmit()
               }}
-              className="group relative flex items-center h-8 sm:h-8.5 w-44 sm:w-56 md:w-64 rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-all duration-200 hover:border-[var(--admin-gold)] focus-within:border-[var(--admin-gold)] focus-within:ring-1 focus-within:ring-[var(--admin-gold)]/30 shrink-0 ml-1 sm:ml-2"
+              className="group relative flex items-center h-8 sm:h-8.5 w-44 sm:w-56 md:w-64 rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] transition-all duration-200 hover:border-[var(--text-primary)] focus-within:border-[var(--text-primary)] focus-within:ring-1 focus-within:ring-[var(--border-strong)] shrink-0 ml-1 sm:ml-2"
             >
-              <Search className="size-3.5 ml-2.5 text-[var(--admin-gold)] shrink-0 pointer-events-none" />
+              <Search className="size-3.5 ml-2.5 text-[var(--text-muted)] group-focus-within:text-[var(--text-primary)] shrink-0 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
@@ -251,7 +256,7 @@ export function Catalog({ products }: { products: Product[] }) {
               )}
               <button
                 type="submit"
-                className="h-full px-2.5 sm:px-3 bg-[var(--text-primary)] text-[var(--surface-primary)] hover:opacity-90 font-bold text-[10px] uppercase tracking-wider rounded-r-sm shrink-0"
+                className="h-full px-2.5 sm:px-3 bg-[var(--text-primary)] text-[var(--surface-primary)] hover:opacity-90 font-bold text-[10px] uppercase tracking-wider rounded-none shrink-0"
               >
                 {isEn ? 'Find' : 'Tìm'}
               </button>
@@ -273,7 +278,7 @@ export function Catalog({ products }: { products: Product[] }) {
               type="button"
               onClick={() => setIsFilterOpen(true)}
               className={cn(
-                'flex items-center gap-2 rounded-sm border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
+                'flex items-center gap-2 rounded-none border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all',
                 activeFilterCount > 0
                   ? 'border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--surface-primary)]'
                   : 'border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-primary)] hover:border-[var(--border-strong)]',
@@ -283,7 +288,7 @@ export function Catalog({ products }: { products: Product[] }) {
               <SlidersHorizontal className="size-3.5" />
               <span>{isEn ? 'Filter' : 'Bộ Lọc'}</span>
               {activeFilterCount > 0 && (
-                <span className="flex size-4 items-center justify-center rounded-full bg-[var(--surface-primary)] text-[9px] font-bold text-[var(--text-primary)]">
+                <span className="flex size-4 items-center justify-center rounded-none bg-[var(--surface-primary)] text-[9px] font-bold text-[var(--text-primary)]">
                   {activeFilterCount}
                 </span>
               )}
@@ -297,7 +302,7 @@ export function Catalog({ products }: { products: Product[] }) {
               id="sort"
               value={sort}
               onChange={(e) => setParam('sort', e.target.value, 'featured')}
-              className="rounded-sm border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[var(--text-primary)] transition-colors focus:outline-none cursor-pointer"
+              className="rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[var(--text-primary)] transition-colors focus:outline-none cursor-pointer"
             >
               <option value="featured">{isEn ? 'Featured' : 'Nổi bật'}</option>
               <option value="price-asc">{isEn ? 'Price: Low to High' : 'Giá: Thấp đến cao'}</option>
@@ -318,10 +323,10 @@ export function Catalog({ products }: { products: Product[] }) {
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--admin-gold)] bg-[var(--admin-gold)]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--admin-gold)]/20"
+                className="inline-flex items-center gap-1.5 rounded-none border border-[var(--border-strong)] bg-[var(--surface-secondary)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-primary)] transition-colors hover:border-[var(--text-primary)]"
                 title="Bấm để xóa từ khóa tìm kiếm"
               >
-                <Search className="size-3 text-[var(--admin-gold)]" />
+                <Search className="size-3 text-[var(--text-primary)]" />
                 <span>&quot;{searchParam}&quot;</span>
                 <X className="size-3" />
               </button>
@@ -331,7 +336,7 @@ export function Catalog({ products }: { products: Product[] }) {
               <button
                 type="button"
                 onClick={() => setParam('price', 'all', 'all')}
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-0.5 text-[11px] text-[var(--text-primary)] transition-colors hover:border-[var(--text-primary)]"
+                className="inline-flex items-center gap-1 rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-1 text-[11px] text-[var(--text-primary)] transition-colors hover:border-[var(--text-primary)]"
               >
                 <span>{priceRanges.find((p) => p.value === priceParam)?.label}</span>
                 <X className="size-3" />
@@ -341,7 +346,7 @@ export function Catalog({ products }: { products: Product[] }) {
               <button
                 type="button"
                 onClick={() => setParam('avail', 'all', 'all')}
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-0.5 text-[11px] text-[var(--text-primary)] transition-colors hover:border-[var(--text-primary)]"
+                className="inline-flex items-center gap-1 rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-1 text-[11px] text-[var(--text-primary)] transition-colors hover:border-[var(--text-primary)]"
               >
                 <span>{isEn ? 'In Stock' : 'Còn hàng'}</span>
                 <X className="size-3" />
@@ -361,16 +366,16 @@ export function Catalog({ products }: { products: Product[] }) {
                   router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
                 }}
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] transition-colors',
+                  'inline-flex items-center gap-1.5 rounded-none px-2.5 py-1 text-[11px] transition-colors',
                   badgeParam === 'New'
-                    ? 'border border-amber-500/50 bg-amber-500/15 text-amber-300 font-semibold hover:bg-amber-500/25'
+                    ? 'border border-[var(--border-strong)] bg-[var(--surface-secondary)] text-[var(--text-primary)] font-semibold hover:border-[var(--text-primary)]'
                     : 'border border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-primary)] hover:border-[var(--text-primary)]'
                 )}
                 title="Bấm để xóa lọc"
               >
                 <span>
                   {badgeParam === 'New'
-                    ? (isEn ? '✨ New Arrivals (NEW IN)' : '✨ Hàng mới (NEW IN)')
+                    ? (isEn ? 'Hàng mới (NEW IN)' : 'Hàng mới (NEW IN)')
                     : badgeOptions.find((b) => b.value === badgeParam)?.label}
                 </span>
                 <X className="size-3" />
@@ -527,7 +532,7 @@ export function Catalog({ products }: { products: Product[] }) {
                 <button
                   type="button"
                   onClick={() => setIsFilterOpen(false)}
-                  className="w-full rounded-sm bg-[var(--text-primary)] py-3 text-xs font-bold uppercase tracking-[0.18em] text-[var(--surface-primary)] transition-opacity hover:opacity-90"
+                  className="w-full rounded-none bg-[var(--text-primary)] py-3 text-xs font-bold uppercase tracking-[0.18em] text-[var(--surface-primary)] transition-opacity hover:opacity-90"
                 >
                   {isEn ? `Show ${visible.length} Products` : `Xem ${visible.length} Sản Phẩm`}
                 </button>
@@ -541,7 +546,7 @@ export function Catalog({ products }: { products: Product[] }) {
       <div className="px-3 sm:px-5 md:px-6 lg:px-8">
         {visible.length > 0 ? (
           <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 xl:grid-cols-4">
-            {visible.map((p, i) => (
+            {paginated.map((p, i) => (
               <ProductCard key={p.slug} product={p} priority={i < 4} />
             ))}
           </div>
@@ -573,7 +578,7 @@ export function Catalog({ products }: { products: Product[] }) {
             <button
               type="button"
               onClick={resetAllFilters}
-              className="mt-6 rounded-sm border border-[var(--border-strong)] bg-[var(--surface-secondary)] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-all hover:bg-[var(--text-primary)] hover:text-[var(--surface-primary)]"
+              className="mt-6 rounded-none border border-[var(--border-strong)] bg-[var(--surface-secondary)] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-all hover:bg-[var(--text-primary)] hover:text-[var(--surface-primary)]"
             >
               {searchParam.trim()
                 ? isEn
@@ -582,6 +587,13 @@ export function Catalog({ products }: { products: Product[] }) {
                 : isEn
                   ? 'Reset All Filters'
                   : 'Đặt Lại Bộ Lọc'}
+            </button>
+          </div>
+        )}
+        {visibleCount < visible.length && (
+          <div className="mt-10 flex justify-center">
+            <button type="button" onClick={() => setVisibleCount((count) => count + 12)} className="rounded-none border border-[var(--border-strong)] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-primary)] transition-colors hover:bg-[var(--text-primary)] hover:text-[var(--surface-primary)]">
+              {isEn ? `Load more (${visible.length - visibleCount})` : `Xem thêm (${visible.length - visibleCount})`}
             </button>
           </div>
         )}

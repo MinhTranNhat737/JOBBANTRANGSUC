@@ -121,11 +121,11 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
             role="dialog"
             aria-modal="true"
             aria-label="Tìm kiếm sản phẩm"
-            className="relative z-10 w-full max-w-2xl sm:max-w-3xl overflow-hidden rounded-md border-2 border-[var(--admin-gold)]/40 bg-[var(--surface-primary)] shadow-[0_0_35px_rgba(212,175,55,0.15)]"
+            className="relative z-10 w-full max-w-2xl sm:max-w-3xl overflow-hidden rounded-none border border-[var(--border-strong)] bg-[var(--surface-primary)] shadow-2xl"
           >
             {/* Search Input Bar - Dạng Hộp Chữ Nhật To Bản */}
             <div className="relative flex items-center border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)]/60 px-4 py-3 sm:px-6 sm:py-4">
-              <Search className="size-6 shrink-0 text-[var(--admin-gold)]" />
+              <Search className="size-6 shrink-0 text-[var(--text-primary)]" />
               <input
                 ref={inputRef}
                 type="text"
@@ -147,7 +147,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
 
               <div className="flex items-center gap-2 shrink-0">
                 {isLoading && (
-                  <Loader2 className="size-4 animate-spin text-[var(--admin-gold)]" />
+                  <Loader2 className="size-4 animate-spin text-[var(--text-primary)]" />
                 )}
                 {query && (
                   <button
@@ -156,7 +156,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                       setQuery('')
                       inputRef.current?.focus()
                     }}
-                    className="flex size-8 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)] transition-colors"
+                    className="flex size-8 items-center justify-center rounded-none text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)] transition-colors"
                     title="Xóa tìm kiếm"
                   >
                     <X className="size-4" />
@@ -166,14 +166,14 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 <button
                   type="button"
                   onClick={() => handleGoToCollections()}
-                  className="hidden sm:flex h-9 items-center justify-center px-4 rounded-sm font-bold text-xs uppercase tracking-[0.16em] bg-[var(--admin-gold)] text-black hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                  className="hidden sm:flex h-9 items-center justify-center px-4 rounded-none font-bold text-xs uppercase tracking-[0.16em] bg-[var(--text-primary)] text-[var(--surface-primary)] hover:opacity-90 active:scale-95 transition-all shadow-sm"
                 >
                   {isEn ? 'Search' : 'Tìm Kiếm'}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded px-2 py-1 text-[11px] font-mono uppercase tracking-wider text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border-subtle)]"
+                  className="rounded-none px-2 py-1 text-[11px] font-mono uppercase tracking-wider text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border-subtle)]"
                   title="Đóng (ESC)"
                 >
                   ESC
@@ -187,7 +187,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
               {!query.trim() && (
                 <div>
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
-                    <Tag className="size-3.5 text-[var(--admin-gold)]" />
+                    <Tag className="size-3.5 text-[var(--text-muted)]" />
                     <span>{isEn ? 'Popular Searches' : 'Tìm kiếm phổ biến'}</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -199,7 +199,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                           setQuery(tag)
                           inputRef.current?.focus()
                         }}
-                        className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-all hover:border-[var(--admin-gold)] hover:text-[var(--text-primary)]"
+                        className="rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-all hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
                       >
                         {tag}
                       </button>
@@ -212,7 +212,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
               <div>
                 <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
                   <span className="flex items-center gap-1.5">
-                    <Sparkles className="size-3.5 text-[var(--admin-gold)]" />
+                    <Sparkles className="size-3.5 text-[var(--text-primary)]" />
                     {query.trim()
                       ? isEn
                         ? `Matching Products (${results.length})`
@@ -225,7 +225,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                     <button
                       type="button"
                       onClick={() => handleGoToCollections()}
-                      className="text-[11px] text-[var(--admin-gold)] hover:underline inline-flex items-center gap-1 lowercase"
+                      className="text-[11px] text-[var(--text-primary)] hover:underline inline-flex items-center gap-1 lowercase"
                     >
                       {isEn ? 'view all' : 'xem tất cả'}
                       <ArrowRight className="size-3" />
@@ -239,9 +239,9 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                       <div
                         key={product.slug}
                         onClick={() => handleSelectProduct(product.slug)}
-                        className="group flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-2.5 cursor-pointer transition-all hover:border-[var(--admin-gold)] hover:bg-[var(--hover-bg)]"
+                        className="group flex items-center gap-3 rounded-none border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-2.5 cursor-pointer transition-all hover:border-[var(--text-primary)] hover:bg-[var(--hover-bg)]"
                       >
-                        <div className="relative size-14 shrink-0 overflow-hidden rounded bg-[var(--surface-primary)] border border-[var(--border-subtle)]">
+                        <div className="relative size-14 shrink-0 overflow-hidden rounded-none bg-[var(--surface-primary)] border border-[var(--border-subtle)]">
                           <Image
                             src={product.image || '/placeholder.svg'}
                             alt={product.name}
@@ -252,7 +252,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <h4 className="truncate text-xs font-semibold text-[var(--text-primary)] group-hover:text-[var(--admin-gold)] transition-colors">
+                            <h4 className="truncate text-xs font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-primary)] transition-colors">
                               {product.name}
                             </h4>
                           </div>
@@ -260,7 +260,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                             {formatPrice(product.price)}
                           </p>
                           {product.badge && (
-                            <span className="mt-1 inline-block text-[9px] font-bold uppercase tracking-wider text-[var(--admin-gold)]">
+                            <span className="mt-1 inline-block text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                               ★ {product.badge}
                             </span>
                           )}
@@ -280,7 +280,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                       <button
                         type="button"
                         onClick={() => handleGoToCollections('')}
-                        className="mt-3 text-xs text-[var(--admin-gold)] underline hover:opacity-80"
+                        className="mt-3 text-xs text-[var(--text-primary)] underline hover:opacity-80"
                       >
                         {isEn ? 'Browse all collections' : 'Khám phá tất cả bộ sưu tập →'}
                       </button>
@@ -299,7 +299,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 <button
                   type="button"
                   onClick={() => handleGoToCollections()}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--admin-gold)] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:underline"
                 >
                   <span>{isEn ? 'Search Collections' : 'Xem trong Bộ sưu tập'}</span>
                   <ArrowRight className="size-3.5" />

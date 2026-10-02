@@ -127,11 +127,7 @@ function InvoiceDocument() {
     )
   }
 
-  const isPaid =
-    order.paymentStatus === 'paid' ||
-    order.status === 'confirmed' ||
-    order.status === 'shipping' ||
-    order.status === 'delivered'
+  const isPaid = order.paymentStatus === 'paid'
 
   const formattedDate = new Date(order.createdAt).toLocaleDateString('vi-VN', {
     day: '2-digit',
@@ -162,9 +158,9 @@ function InvoiceDocument() {
 
           <div className="flex items-center gap-2">
             <span className="font-semibold text-xs sm:text-sm tracking-wide text-zinc-100">
-              Hóa đơn điện tử <span className="font-mono text-amber-400">{order.id}</span>
+              Hóa đơn điện tử <span className="font-mono text-zinc-100 font-bold">{order.id}</span>
             </span>
-            <span className="hidden md:inline-flex items-center gap-1 text-[11px] text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-700">
+            <span className="hidden md:inline-flex items-center gap-1 text-[11px] text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded-none border border-zinc-700">
               <ShieldCheck className="size-3 text-emerald-400" /> Bản in chuẩn A4
             </span>
           </div>
@@ -174,7 +170,7 @@ function InvoiceDocument() {
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-400 text-black font-semibold text-xs tracking-wider uppercase hover:bg-amber-300 transition-colors shadow-lg shadow-amber-400/10 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-zinc-200 transition-colors shadow-sm cursor-pointer"
           >
             <Printer className="size-3.5" />
             <span>In hóa đơn / Lưu file PDF</span>
@@ -217,14 +213,14 @@ function InvoiceDocument() {
         </div>
 
         {/* Payment Status Banner */}
-        <div className="my-5 p-3 rounded bg-zinc-50 border border-zinc-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="my-5 p-3 rounded-none bg-zinc-50 border border-zinc-200 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             {isPaid ? (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-none">
                 <CheckCircle2 className="size-3.5" /> ĐÃ THANH TOÁN THÀNH CÔNG
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-800 bg-zinc-200 px-2.5 py-1 rounded-none">
                 <Clock className="size-3.5" /> CHỜ THANH TOÁN (COD)
               </span>
             )}
@@ -367,7 +363,7 @@ function InvoiceDocument() {
             <p className="font-bold uppercase tracking-wider text-[11px] text-zinc-700">ĐẠI DIỆN THUC LUXURY</p>
             <p className="text-[10px] text-zinc-400 italic mt-0.5">(Người lập hóa đơn &amp; Đóng dấu)</p>
             <div className="h-16 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-bold text-amber-800 border border-amber-600 px-3 py-1 rounded tracking-widest uppercase bg-amber-50">
+              <span className="text-[10px] font-bold text-zinc-900 border border-zinc-900 px-3 py-1 rounded-none tracking-widest uppercase bg-zinc-100">
                 THUC LUXURY CERTIFIED
               </span>
             </div>

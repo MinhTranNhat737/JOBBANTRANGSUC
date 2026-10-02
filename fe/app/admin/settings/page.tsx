@@ -15,6 +15,7 @@ import {
   Key,
   MessageSquare,
 } from 'lucide-react'
+import { fetchWithAuth } from '@/lib/api'
 
 type ConfigState = {
   sepay: {
@@ -90,7 +91,7 @@ export default function SettingsPage() {
   const fetchConfigAndLogs = async () => {
     try {
       setLoadingLogs(true)
-      const res = await fetch('/api/admin/notifications')
+      const res = await fetchWithAuth('/api/admin/notifications')
       const data = await res.json()
       if (data.config) setConfig(data.config)
       if (data.settings) {
@@ -116,7 +117,7 @@ export default function SettingsPage() {
     setSavingSettings(true)
     setTestStatus(null)
     try {
-      const res = await fetch('/api/admin/notifications', {
+      const res = await fetchWithAuth('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -155,7 +156,7 @@ export default function SettingsPage() {
     setTestStatus(null)
     try {
       // Auto save before testing
-      await fetch('/api/admin/notifications', {
+      await fetchWithAuth('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -167,7 +168,7 @@ export default function SettingsPage() {
         }),
       })
 
-      const res = await fetch('/api/admin/notifications', {
+      const res = await fetchWithAuth('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'test_telegram' }),
@@ -190,7 +191,7 @@ export default function SettingsPage() {
     setTestingEmail(true)
     setTestStatus(null)
     try {
-      const res = await fetch('/api/admin/notifications', {
+      const res = await fetchWithAuth('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'test_email', targetEmail: adminEmail }),

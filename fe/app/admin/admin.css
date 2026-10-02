@@ -51,8 +51,8 @@
 
   --admin-success: #16a34a;
   --admin-success-bg: rgba(22, 163, 74, 0.12);
-  --admin-warning: #d97706;
-  --admin-warning-bg: rgba(217, 119, 6, 0.12);
+  --admin-warning: #475569;
+  --admin-warning-bg: rgba(71, 85, 105, 0.12);
   --admin-danger: #dc2626;
   --admin-danger-bg: rgba(220, 38, 38, 0.12);
   --admin-info: #2563eb;
@@ -63,6 +63,17 @@
   --admin-text-muted: #64748b;
 
   color-scheme: light;
+}
+
+/* Sharp rectangular & square boxes without rounded corners */
+[data-admin] *,
+[data-admin] *::before,
+[data-admin] *::after {
+  border-radius: 0 !important;
+}
+
+[data-admin] .animate-spin.rounded-full {
+  border-radius: 9999px !important;
 }
 
 /* ── Quy tắc đảm bảo chữ luôn sắc nét và không bao giờ bị chìm/mất trong Light Theme ── */
@@ -264,10 +275,10 @@
   width: 38px;
   height: 38px;
   margin: 0 auto;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.08) 100%);
-  border: 1px solid var(--admin-gold);
-  color: var(--admin-gold);
+  border-radius: 0px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid var(--admin-border-strong);
+  color: var(--admin-text);
   font-family: var(--font-cinzel), serif;
   font-weight: 700;
   font-size: 15px;
@@ -275,7 +286,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+  box-shadow: none;
   cursor: default;
   user-select: none;
 }
@@ -410,9 +421,9 @@
   justify-content: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 0px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--admin-gold);
   font-size: 12px;
   font-weight: 500;
@@ -422,7 +433,7 @@
 }
 
 .sidebar-middle-toggle-btn:hover {
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-color: var(--admin-gold);
   color: #ffffff;
 }
@@ -447,9 +458,9 @@
   transform: translateY(-50%);
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: 0px;
   background: #18181b;
-  border: 1px solid rgba(212, 175, 55, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: var(--admin-gold);
   display: flex;
   align-items: center;
@@ -897,7 +908,7 @@
   overflow-x: auto;
   width: 100%;
   scrollbar-width: thin;
-  scrollbar-color: rgba(212, 175, 55, 0.35) rgba(255, 255, 255, 0.02);
+  scrollbar-color: rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.02);
 }
 
 .admin-table-wrap::-webkit-scrollbar {
@@ -909,8 +920,8 @@
 }
 
 .admin-table-wrap::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.35);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 0px;
 }
 
 .admin-table-wrap::-webkit-scrollbar-thumb:hover {
@@ -1005,9 +1016,9 @@
 }
 
 .product-badge.badge-bestseller {
-  background: rgba(212, 175, 55, 0.15);
-  color: #facc15;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .product-badge.badge-limited {

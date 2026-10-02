@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAdmin } from '@/lib/admin-store'
+import { useOrderNotifications } from '@/lib/use-order-notifications'
 import {
   LayoutDashboard,
   Package,
@@ -15,13 +16,17 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Tags,
+  Gem,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/products', label: 'Sản phẩm', icon: Package },
+  { href: '/admin/categories', label: 'Danh mục', icon: Tags },
+  { href: '/admin/brands', label: 'Thương hiệu', icon: Gem },
   { href: '/admin/inventory', label: 'Kho hàng', icon: Boxes },
-  { href: '/admin/orders', label: 'Đơn hàng', icon: ShoppingCart, badge: 2 },
+  { href: '/admin/orders', label: 'Đơn hàng', icon: ShoppingCart },
   { href: '/admin/customers', label: 'Khách hàng', icon: Users },
   { href: '/admin/analytics', label: 'Phân tích', icon: BarChart3 },
   { href: '/admin/settings', label: 'Cài đặt', icon: Settings },
@@ -30,6 +35,7 @@ const NAV_ITEMS = [
 export function AdminSidebar() {
   const pathname = usePathname()
   const { sidebarCollapsed, sidebarMobileOpen, toggleSidebar, setSidebarMobileOpen, logout } = useAdmin()
+  const { pendingCount } = useOrderNotifications()
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href
@@ -72,7 +78,7 @@ export function AdminSidebar() {
             >
               <item.icon className="nav-icon" />
               <span>{item.label}</span>
-              {item.badge ? <span className="nav-badge">{item.badge}</span> : null}
+              {item.href === '/admin/orders' && pendingCount > 0 ? <span className="nav-badge">{pendingCount}</span> : null}
             </Link>
           ))}
         </nav>

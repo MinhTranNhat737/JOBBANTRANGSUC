@@ -1,24 +1,19 @@
 import { NextResponse } from 'next/server'
-import { createMomoPayment } from '@/lib/momo'
-import { useOrderStore } from '@/lib/order-store'
+
+const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3001/api'
 
 export async function POST(req: Request) {
   try {
-    const { orderId } = await req.json()
-    if (!orderId) {
-      return NextResponse.json({ error: 'Missing orderId' }, { status: 400 })
-    }
-
-    const { getOrderById } = useOrderStore.getState()
-    const order = getOrderById(orderId)
-
-    if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
-    }
-
-    const momoRes = await createMomoPayment(order)
-    return NextResponse.json(momoRes)
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message || 'MoMo error' }, { status: 500 })
+    const body = await req.json()
+    if (!body.orderId) return NextResponse.json({ error: 'Thiếu orderId' }, { status: 400 })
+    const response = await fetch(`${BACKEND_API}/payment/momo/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const data = await response.json().catch(() => ({ error: 'Phản hồi MoMo không hợp lệ' }))
+    return NextResponse.json(data, { status: response.status })
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Lỗi kết nối MoMo' }, { status: 502 })
   }
 }

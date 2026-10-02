@@ -17,6 +17,7 @@ export type CustomerUser = {
 
 type CustomerState = {
   customer: CustomerUser | null
+  token: string | null
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (data: {
     name: string
@@ -26,6 +27,7 @@ type CustomerState = {
     password: string
   }) => Promise<{ success: boolean; error?: string }>
   updateProfile: (data: Partial<Pick<CustomerUser, 'name' | 'phone' | 'address'>>) => Promise<void>
+  refreshProfile: () => Promise<void>
   logout: () => void
 }
 
@@ -33,6 +35,7 @@ export const useCustomer = create<CustomerState>()(
   persist(
     (set, get) => ({
       customer: null,
+      token: null,
 
       login: async (identifier: string, password: string) => {
         try {
@@ -56,7 +59,7 @@ export const useCustomer = create<CustomerState>()(
           const u = data.user
           const loggedUser: CustomerUser = {
             id: String(u.id),
-            name: u.full_name || u.username || 'Khách hàng',
+            name: u.full_name || u.name || u.username || 'Khách hàng',
             email: u.email || '',
             phone: u.phone || '',
             address: u.address || '',
@@ -64,7 +67,7 @@ export const useCustomer = create<CustomerState>()(
             joinedAt: u.created_at || new Date().toISOString(),
           }
 
-          set({ customer: loggedUser })
+          set({ customer: loggedUser, token: data.token || null })
           return { success: true }
         } catch (err: any) {
           console.error('Login error:', err)
@@ -110,7 +113,7 @@ export const useCustomer = create<CustomerState>()(
             joinedAt: u.created_at || new Date().toISOString(),
           }
 
-          set({ customer: newUser })
+          set({ customer: newUser, token: result.token || null })
           return { success: true }
         } catch (err: any) {
           console.error('Register error:', err)
@@ -121,37 +124,92 @@ export const useCustomer = create<CustomerState>()(
         }
       },
 
+      refreshProfile: async () => {
+        const token = get().token
+        const current = get().customer
+        if (!token && !current) return
+
+        try {
+          const res = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          })
+          if (res.ok) {
+            const data = await res.json()
+            if (data && data.id) {
+              set({
+                customer: {
+                  id: String(data.id),
+                  name: data.full_name || data.name || current?.name || 'Khách hàng',
+                  email: data.email || current?.email || '',
+                  phone: data.phone || current?.phone || '',
+                  address: data.address || current?.address || '',
+                  role: data.role || current?.role || 'customer',
+                  joinedAt: data.created_at || current?.joinedAt || new Date().toISOString(),
+                },
+              })
+            }
+          }
+        } catch (e) {
+          console.warn('refreshProfile error:', e)
+        }
+      },
+
       updateProfile: async (data) => {
         const current = get().customer
         if (!current) return
 
-        const updated: CustomerUser = { ...current, ...data }
+        const updated: CustomerUser = {
+          ...current,
+          ...(data.name !== undefined ? { name: data.name } : {}),
+          ...(data.phone !== undefined ? { phone: data.phone } : {}),
+          ...(data.address !== undefined ? { address: data.address } : {}),
+        }
         set({ customer: updated })
 
-        // Có thể đồng bộ lên backend customer table nếu có email/id
+        // Đồng bộ lên backend qua endpoint /api/auth/profile
         try {
-          if (current.id && !isNaN(Number(current.id))) {
-            await fetch(`${API_URL}/customers/${current.id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                full_name: data.name,
-                phone: data.phone,
-                address: data.address,
-              }),
-            })
+          const token = get().token
+          const res = await fetch(`${API_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              userId: current.id,
+              email: current.email,
+              name: data.name !== undefined ? data.name : current.name,
+              phone: data.phone !== undefined ? data.phone : current.phone,
+              address: data.address !== undefined ? data.address : current.address,
+            }),
+          })
+          if (res.ok) {
+            const result = await res.json()
+            if (result?.user) {
+              set({
+                customer: {
+                  ...updated,
+                  name: result.user.name || updated.name,
+                  phone: result.user.phone || updated.phone,
+                  address: result.user.address || updated.address,
+                },
+              })
+            }
           }
         } catch (e) {
           console.warn('Update customer profile backend sync warning:', e)
         }
       },
 
-      logout: () => set({ customer: null }),
+      logout: () => set({ customer: null, token: null }),
     }),
     {
       name: 'thuc-luxury-customer-auth',
       partialize: (state) => ({
         customer: state.customer,
+        token: state.token,
       }),
     },
   ),

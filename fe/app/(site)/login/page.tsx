@@ -118,6 +118,7 @@ function LoginForm() {
                 {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
+            <div className="text-right"><Link href="/forgot-password" className="text-xs text-[var(--text-muted)] underline underline-offset-4">Quên mật khẩu?</Link></div>
           </div>
 
           {/* Các nút: To, Rõ ràng, Tối giản, Dễ bấm */}

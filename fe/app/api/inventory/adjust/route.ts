@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const body = await req.json()
     const beRes = await fetch(`${API_BASE_URL}/inventory/adjust`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: req.headers.get('authorization') || '' },
       body: JSON.stringify(body),
     })
 

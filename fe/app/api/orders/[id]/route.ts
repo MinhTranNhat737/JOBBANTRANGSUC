@@ -67,7 +67,7 @@ function mapBackendOrder(bo: any): Order {
       : [],
     total: parseFloat(bo.total_amount) || 0,
     shippingFee: 0,
-    status: bo.status || 'pending',
+    status: bo.status === 'paid' ? 'confirmed' : (bo.status || 'pending'),
     createdAt: bo.created_at || new Date().toISOString(),
     timeline: [
       {
@@ -77,10 +77,16 @@ function mapBackendOrder(bo: any): Order {
       },
     ],
     notes: bo.note || '',
-    paymentMethod: bo.payment_method || 'cod',
+    paymentMethod: String(bo.payment_method || '').toLowerCase() === 'sepay'
+      ? 'Chuyển khoản SePay (VietQR)'
+      : String(bo.payment_method || '').toLowerCase() === 'momo'
+        ? 'Ví MoMo'
+        : (bo.payment_method || 'Tiền mặt khi nhận hàng (COD)'),
     customerId: bo.customer_id ? String(bo.customer_id) : undefined,
-    paymentStatus: bo.status === 'confirmed' || bo.status === 'delivered' || bo.status === 'shipping' || bo.status === 'paid' ? 'paid' : 'pending',
-    paymentGateway: (bo.payment_method as any) || 'cod',
+    paymentStatus: bo.payment_status === 'paid' || bo.status === 'paid' ? 'paid' : 'pending',
+    paymentGateway: bo.payment_gateway || (String(bo.payment_method || '').toLowerCase().includes('sepay') ? 'sepay' : String(bo.payment_method || '').toLowerCase().includes('momo') ? 'momo' : 'cod'),
+    transactionId: bo.transaction_id || undefined,
+    paidAt: bo.paid_at || undefined,
   }
 }
 
@@ -129,7 +135,7 @@ export async function PATCH(
 
     const beRes = await fetch(`${BACKEND_API}/orders/${encodeURIComponent(normalized)}/status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: req.headers.get('authorization') || '' },
       body: JSON.stringify(body),
     })
 

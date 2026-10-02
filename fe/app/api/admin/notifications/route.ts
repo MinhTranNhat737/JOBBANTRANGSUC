@@ -4,8 +4,10 @@ import { getInvoiceLogs, sendInvoiceEmail } from '@/lib/email'
 import { getDynamicSettings, saveDynamicSettings } from '@/lib/payment-settings-store'
 import { PAYMENT_CONFIG } from '@/lib/payment-config'
 import { getAllServerOrders } from '@/lib/server-order-repo'
+import { isAdminRequest } from '@/lib/server-auth'
 
-export async function GET() {
+export async function GET(req: Request) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: 'Không có quyền quản trị' }, { status: 401 })
   const telegramLogs = getTelegramLogs()
   const invoiceLogs = getInvoiceLogs()
   const dynamic = getDynamicSettings()
@@ -46,6 +48,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    if (!(await isAdminRequest(req))) return NextResponse.json({ error: 'Không có quyền quản trị' }, { status: 401 })
     const body = await req.json()
     const { action, targetEmail, updates } = body
 

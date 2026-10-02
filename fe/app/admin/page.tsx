@@ -9,6 +9,7 @@ import { RecentOrders } from '@/components/admin/recent-orders'
 import { LowStockAlert } from '@/components/admin/low-stock-alert'
 import { getAdminStats, formatCompactPrice } from '@/lib/admin-data'
 import { useOrderStore } from '@/lib/order-store'
+import { fetchWithAuth } from '@/lib/api'
 
 export default function AdminDashboard() {
   const { orders } = useOrderStore()
@@ -17,7 +18,7 @@ export default function AdminDashboard() {
   const [customerCount, setCustomerCount] = useState(0)
 
   useEffect(() => {
-    fetch('/api/customers', { cache: 'no-store' })
+    fetchWithAuth('/api/customers', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && typeof data.total === 'number') {
@@ -30,7 +31,7 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => {
-    fetch('/api/inventory', { cache: 'no-store' })
+    fetchWithAuth('/api/inventory', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.products && Array.isArray(data.products)) {
